@@ -2,12 +2,12 @@
 import express from 'express';
 import dotenv from 'dotenv';
 //import corsConfig from './configs/cors.js';
-//import connectDB from './configs/db.js';
-//import route from './routes/index.js';
+import connectDB from './configs/db.js';
+import route from './routes/index.js';
 //import errorHandler from './middlewares/errorHandler.js';
 
 dotenv.config();
-//connectDB();
+connectDB();
 
 // app
 const app = express();
@@ -16,7 +16,7 @@ app.use(express.urlencoded({  extended: false}));
 //app.use(corsConfig);
 
 // routes
-//app.use('/api', route);
+app.use('/api', route);
 app.get('/', (req, res) => {
     res.send('<h1>Welcome to PhotoMe App</h1>');
 });
