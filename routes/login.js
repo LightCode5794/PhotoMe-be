@@ -20,7 +20,7 @@ router.post("/", (req, res) => {
         bcryptjs.compare(password, user.password).then((isMatch) => {
             if (!isMatch)
                 return res.status(400).json({ msg: 'Invalid credentials' })
-            jwt.sign({ id: user.id }, process.env.secret, { expiresIn: "1000d" }, (err, token) => {
+            jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: "1000d" }, (err, token) => {
                 if (err)
                     throw err
                 res.status(200).json({

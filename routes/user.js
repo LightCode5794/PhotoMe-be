@@ -41,11 +41,14 @@ router.post('/', (req, res) => {
                             },
                         })
                     })
-                })
-            })
+                }
+                )
+                    .catch(err => res.status(401).send(err));
+            }
+            )
         })
         console.log(req.body)
     })
 })
 
-export default  router;
+export default router;

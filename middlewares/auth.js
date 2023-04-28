@@ -12,7 +12,7 @@ function auth(req,res,next){
     }
 
     try{
-        const decoded=jwt.verify(token,process.env.secret)
+        const decoded=jwt.verify(token,process.env.JWT_SECRET)
         req.PhoToUser=decoded
         next()
     } catch(err){
