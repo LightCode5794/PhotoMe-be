@@ -1,7 +1,7 @@
 import express from'express';
-import Comment from '../models/Comment.js';
-import Newfeed from'../models/Newfeed.js';
-import User from '../models/User.js';
+import Comment from '../app/models/Comment.js';
+import Newfeed from'../app/models/Newfeed.js';
+import User from '../app/models/User.js';
 
 import bcryptjs from "bcryptjs"
 import jwt from "jsonwebtoken"

@@ -1,9 +1,9 @@
 import express from 'express';
-import Newfeed from '../models/Newfeed.js'
-import User from '../models/User.js'
-import Profile from '../models/Profile.js'
-import Comment from '../models/Comment.js'
-import Liked from '../models/Liked.js'
+import Newfeed from '../app/models/Newfeed.js'
+import User from '../app/models/User.js'
+import Profile from '../app/models/Profile.js'
+import Comment from '../app/models/Comment.js'
+import Liked from '../app/models/Liked.js'
 
 import bcryptjs from "bcryptjs"
 import jwt from "jsonwebtoken"

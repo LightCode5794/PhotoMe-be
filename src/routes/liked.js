@@ -1,7 +1,7 @@
 import express from  'express';
-import Liked from '../models/Liked.js';
-import Newfeed  from '../models/Newfeed.js';
-import User from '../models/User.js';
+import Liked from '../app/models/Liked.js';
+import Newfeed  from '../app/models/Newfeed.js';
+import User from '../app/models/User.js';
 
 import dotenv from "dotenv"
 const router = express.Router()

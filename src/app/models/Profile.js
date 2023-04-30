@@ -35,15 +35,15 @@ const ProfileSchema = new Schema({
         required: false,
     },
     post: {
-        type: Number,
+        type: [String],
         default: 0,
     },
     follow: {
-        type: Number,
+        type: [String],
         default: 0,
     },
     following: {
-        type: Number,
+        type: [String],
         default: 0,
     },
     registration_data: {

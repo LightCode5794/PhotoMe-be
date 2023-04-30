@@ -1,7 +1,7 @@
 import express from 'express';
-import Profile from '../models/Profile.js';
-import User from '../models/User.js';
-import Follow from '../models/Follow.js';
+import Profile from '../app/models/Profile.js';
+import User from '../app/models/User.js';
+import Follow from '../app/models/Follow.js';
 
 import bcryptjs from "bcryptjs"
 import jwt from "jsonwebtoken"

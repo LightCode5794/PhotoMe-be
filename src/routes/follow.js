@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import Follow from '../models/Follow.js';
+import Follow from '../app/models/Follow.js';
 
 import dotenv from "dotenv";
 const router = Router()
