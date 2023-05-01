@@ -2,8 +2,7 @@ import User from "../models/User.js";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-// import Follow from '../app/models/Follow.js';
-// import auth from "../middlewares/auth.js";
+import mongoose from "mongoose";
 
 dotenv.config();
 
@@ -101,7 +100,33 @@ export const signup = async (req, res, next) => {
 };
 
 //[POST]
-export const updatePassword = async (req, res, next) => {};
+export const updatePassword = async (req, res, next) => {
+  const id = req.params.id;
+  const password = req.body.password;
+  if (!id) {
+    return res.status(400).json({ msg: "Dont have id user" });
+  }
+  console.log(id);
+  console.log(req.body);
+  const user = await User.updateOne(
+    { _id: id },
+    {
+      password: password,
+    }
+  )
+    .then((docs) => {
+      if (docs) {
+        res.status(200).json({ success: true, data: docs });
+      } else {
+        res.status(200).json({ success: false, data: docs });
+      }
+    })
+    .catch((error) => {
+      return res
+        .status(400)
+        .json({ msg: "Dont update profile user", error: error });
+    });
+};
 
 //[GET]
 export const getUserByID = async (req, res, next) => {
@@ -117,12 +142,23 @@ export const getUserByID = async (req, res, next) => {
 //[PUT]
 export const updateUserByID = async (req, res, next) => {
   const id = req.params.id;
+  const { name, gender, birthday, job, avatar, description } = req.body;
   if (!id) {
     return res.status(400).json({ msg: "Dont have id user" });
   }
   console.log(id);
   console.log(req.body);
-  const user = await User.updateOne({ _id: id }, req.body)
+  const user = await User.updateOne(
+    { _id: id },
+    {
+      name: name,
+      gender: gender,
+      birthday: birthday,
+      avatar: avatar,
+      description: description,
+      job: job,
+    }
+  )
     .then((docs) => {
       if (docs) {
         res.status(200).json({ success: true, data: docs });
@@ -131,7 +167,9 @@ export const updateUserByID = async (req, res, next) => {
       }
     })
     .catch((error) => {
-      return res.status(400).json({ msg: "Dont update profile user" });
+      return res
+        .status(400)
+        .json({ msg: "Dont update profile user", error: error });
     });
 };
 
@@ -152,7 +190,7 @@ export const deleteUserByID = async (req, res, next) => {
       }
     })
     .catch((error) => {
-      return res.status(400).json({ msg: "Dont delete user" });
+      return res.status(400).json({ msg: "Dont delete user", error: error });
     });
 };
 
@@ -165,16 +203,66 @@ export const searchUserByName = async (req, res, next) => {
       res.json(user)
     );
   } catch (error) {
-    res.status(400).json({ error: "Error" });
+    res.status(400).json({ error: error });
     console.log(error);
   }
 };
 
-//[GET] //Todo chưa làm :v
-export const getFollowing = async (req, res, next) => {};
+//[GET]
+export const getFollowing = async (req, res, next) => {
+  const id = req.params.id;
+  console.log(id);
+  User.findById(id, {})
+    .then((mainUser) => {
+      User.find(
+        {
+          _id: {
+            $in: mainUser.following.map(
+              (item) => new mongoose.Types.ObjectId(item)
+            ),
+          },
+        },
+        {}
+      )
+        .then((data) => {
+          res.json(data);
+        })
+        .catch((error) => {
+          res.json({ error: error });
+        });
+    })
+    .catch((error) => {
+      res.json({ error: error });
+    });
+};
 
-//[GET] //Todo chưa làm :v
-export const getFollower = async (req, res, next) => {};
+//[GET]
+export const getFollower = async (req, res, next) => {
+  const id = req.params.id;
+  console.log(id);
+  User.findById(id, {})
+    .then((mainUser) => {
+      User.find(
+        {
+          _id: {
+            $in: mainUser.follower.map(
+              (item) => new mongoose.Types.ObjectId(item)
+            ),
+          },
+        },
+        {}
+      )
+        .then((data) => {
+          res.json(data);
+        })
+        .catch((error) => {
+          res.json({ error: error });
+        });
+    })
+    .catch((error) => {
+      res.json({ error: error });
+    });
+};
 
 //[POST]
 export const followingUser = async (req, res, next) => {

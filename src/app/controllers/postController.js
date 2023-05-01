@@ -23,7 +23,9 @@ export const createPost = async (req, res, next) => {
       try {
         newPost
           .save()
-          .then((post) => {
+          .then(async (post) => {
+            user.post.push(post._id);
+            await user.save();
             return res.status(200).json({
               id_User: post.id_User,
               description: post.description,
@@ -50,6 +52,17 @@ export const getPostByID = async (req, res, next) => {
   const id = req.params.id;
   console.log(id);
   Post.findById(id, {})
+    .then((data) => {
+      res.json(data);
+    })
+    .catch((err) => console.log(err));
+};
+
+//[GET]
+export const getAllPost = async (req, res, next) => {
+  const id = req.params.id;
+  console.log(id);
+  Post.find({})
     .then((data) => {
       res.json(data);
     })
@@ -134,7 +147,7 @@ export const deletePostByID = async (req, res, next) => {
       }
     })
     .catch((error) => {
-      return res.status(400).json({ msg: "Dont delete post" });
+      return res.status(400).json({ msg: "Dont delete post", error: error });
     });
 };
 
@@ -147,7 +160,7 @@ export const searchPost = async (req, res, next) => {
       res.json(post)
     );
   } catch (error) {
-    res.status(400).json({ error: "Error" });
+    res.status(400).json({ error: error });
     console.log(error);
   }
 };

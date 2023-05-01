@@ -7,6 +7,7 @@ import {
   deletePostByID,
   searchPost,
   likePostByID,
+  getAllPost,
 } from "../app/controllers/postController.js";
 
 const router = express.Router();
@@ -14,6 +15,7 @@ const router = express.Router();
 dotenv.config();
 
 router.post("/", createPost);
+router.get("/", getAllPost);
 router.get("/search", searchPost);
 router.post("/:id/like", likePostByID);
 router.get("/:id", getPostByID);
