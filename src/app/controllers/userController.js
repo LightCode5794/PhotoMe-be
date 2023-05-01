@@ -1,13 +1,10 @@
-import express from "express";
 import User from "../models/User.js";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import Profile from "../models/Profile.js";
 // import Follow from '../app/models/Follow.js';
 // import auth from "../middlewares/auth.js";
 
-const router = express.Router();
 dotenv.config();
 
 //[POST]
@@ -103,6 +100,9 @@ export const signup = async (req, res, next) => {
   });
 };
 
+//[POST]
+export const updatePassword = async (req, res, next) => {};
+
 //[GET]
 export const getUserByID = async (req, res, next) => {
   const id = req.params.id;
@@ -117,13 +117,12 @@ export const getUserByID = async (req, res, next) => {
 //[PUT]
 export const updateUserByID = async (req, res, next) => {
   const id = req.params.id;
-  const { avatar, name, gender, description, job, birthday } = req.body;
   if (!id) {
     return res.status(400).json({ msg: "Dont have id user" });
   }
   console.log(id);
   console.log(req.body);
-  const profile = await Profile.updateOne({ _id: id }, req.body)
+  const user = await User.updateOne({ _id: id }, req.body)
     .then((docs) => {
       if (docs) {
         res.status(200).json({ success: true, data: docs });
@@ -134,25 +133,27 @@ export const updateUserByID = async (req, res, next) => {
     .catch((error) => {
       return res.status(400).json({ msg: "Dont update profile user" });
     });
-  // const profile = await Profile.updateOne(
-  //   { id_User: id },
-  //   {
-  //     $set: {
-  //       avatar: avatar,
-  //       name: name,
-  //       gender: gender,
-  //       description: description,
-  //       job: job,
-  //       birthday: birthday,
-  //     },
-  //   }
-  // ).catch((error) => {
-  //   console.log(error);
-  //   return res.status(400).json({ msg: "Dont update profile user" });
-  // });
-  // if (!profile.nModified)
-  // return res.status(400).json({ msg: "Dont update profile user" });
-  // return res.status(200).json({ msg: "Update success" });
+};
+
+//[DELETE]
+export const deleteUserByID = async (req, res, next) => {
+  const id = req.params.id;
+  if (!id) {
+    return res.status(400).json({ msg: "Dont have id user" });
+  }
+  console.log(id);
+  console.log(req.body);
+  const user = await User.deleteOne({ _id: id })
+    .then((docs) => {
+      if (docs) {
+        res.status(200).json({ success: true, data: docs });
+      } else {
+        res.status(200).json({ success: false, data: docs });
+      }
+    })
+    .catch((error) => {
+      return res.status(400).json({ msg: "Dont delete user" });
+    });
 };
 
 //[GET]
@@ -167,4 +168,51 @@ export const searchUserByName = async (req, res, next) => {
     res.status(400).json({ error: "Error" });
     console.log(error);
   }
+};
+
+//[GET] //Todo chưa làm :v
+export const getFollowing = async (req, res, next) => {};
+
+//[GET] //Todo chưa làm :v
+export const getFollower = async (req, res, next) => {};
+
+//[POST]
+export const followingUser = async (req, res, next) => {
+  const id = req.params.id;
+  const id_User = req.body.id_User;
+  console.log(id_User);
+
+  if (!id_User) {
+    return res.status(400).json({ msg: "Please enter all fields" });
+  }
+  User.findById(id, {})
+    .then((mainUser) => {
+      User.findById(id_User, {})
+        .then(async (user) => {
+          var index = mainUser.follower.indexOf(id_User);
+          if (index > -1) {
+            mainUser.follower.splice(index, 1);
+            index = user.following.indexOf(id);
+            user.following.splice(index, 1);
+          } else {
+            mainUser.follower.push(id_User);
+            user.following.push(id);
+          }
+          try {
+            await user.save();
+            await mainUser.save();
+            res.status(400).json({ msg: "Thành công" });
+          } catch (error) {
+            res.status(400).json({ msg: "Đã xảy ra lỗi" });
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          res.status(400).json({ msg: "Người dùng không tồn tại 1" });
+        });
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(400).json({ msg: "Người dùng không tồn tại 2" });
+    });
 };

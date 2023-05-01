@@ -44,15 +44,15 @@ const UserSchema = new Schema({
     required: false,
   },
   post: {
-    type: [String],
+    type: Array,
     default: [],
   },
-  follow: {
-    type: [String],
+  follower: {
+    type: Array,
     default: [],
   },
   following: {
-    type: [String],
+    type: Array,
     default: [],
   },
   registration_data: {
