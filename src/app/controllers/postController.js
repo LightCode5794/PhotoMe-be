@@ -87,7 +87,12 @@ export const updatePostByID = async (req, res, next) => {
   )
     .then((docs) => {
       if (docs) {
-        res.status(200).json({ success: true, data: docs });
+        Post.findById(id, {})
+          .then((data) => {
+            res.status(200).json(data);
+          })
+          .catch((err) => console.log(err));
+        // res.status(200).json({ success: true, data: docs });
       } else {
         res.status(200).json({ success: false, data: docs });
       }

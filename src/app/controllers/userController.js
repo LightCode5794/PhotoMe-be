@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import Post from "../models/Post.js";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
@@ -21,7 +22,7 @@ export const login = async (req, res, next) => {
       jwt.sign(
         { id: user.id },
         process.env.JWT_SECRET,
-        { expiresIn: "1000d" },
+        { expiresIn: "365d" },
         (err, token) => {
           if (err) throw err;
           res.status(200).json({
@@ -30,6 +31,13 @@ export const login = async (req, res, next) => {
               id: user.id,
               name: user.name,
               email: user.email,
+              password: user.password,
+              gender: user.gender,
+              phoneNumber: user.phoneNumber,
+              birthday: user.birthday,
+              avatar: user.avatar,
+              description: user.description,
+              job: user.job,
             },
           });
         }
@@ -134,7 +142,7 @@ export const getUserByID = async (req, res, next) => {
   console.log(id);
   User.findById(id, {})
     .then((data) => {
-      res.json(data);
+      res.status(200).json(data);
     })
     .catch((err) => console.log(err));
 };
@@ -161,9 +169,14 @@ export const updateUserByID = async (req, res, next) => {
   )
     .then((docs) => {
       if (docs) {
-        res.status(200).json({ success: true, data: docs });
+        User.findById(id, {})
+          .then((data) => {
+            res.status(200).json(data);
+          })
+          .catch((err) => console.log(err));
+        // res.status(200).json({ success: true, data: docs });
       } else {
-        res.status(200).json({ success: false, data: docs });
+        res.status(400).json({ success: false, data: docs });
       }
     })
     .catch((error) => {
@@ -200,7 +213,7 @@ export const searchUserByName = async (req, res, next) => {
   console.log(nameSearch);
   try {
     await User.find({ name: new RegExp(nameSearch, "i") }).then((user) =>
-      res.json(user)
+      res.status(200).json(user)
     );
   } catch (error) {
     res.status(400).json({ error: error });
@@ -225,7 +238,7 @@ export const getFollowing = async (req, res, next) => {
         {}
       )
         .then((data) => {
-          res.json(data);
+          res.status(200).json(data);
         })
         .catch((error) => {
           res.json({ error: error });
@@ -248,6 +261,33 @@ export const getFollower = async (req, res, next) => {
             $in: mainUser.follower.map(
               (item) => new mongoose.Types.ObjectId(item)
             ),
+          },
+        },
+        {}
+      )
+        .then((data) => {
+          res.status(200).json(data);
+        })
+        .catch((error) => {
+          res.json({ error: error });
+        });
+    })
+    .catch((error) => {
+      res.json({ error: error });
+    });
+};
+
+//[GET]
+export const getPost = async (req, res, next) => {
+  const id = req.params.id;
+  console.log(id);
+  User.findById(id, {})
+    .then((mainUser) => {
+      console.log(mainUser.post);
+      Post.find(
+        {
+          _id: {
+            $in: mainUser.post.map((item) => new mongoose.Types.ObjectId(item)),
           },
         },
         {}
@@ -289,7 +329,7 @@ export const followingUser = async (req, res, next) => {
           try {
             await user.save();
             await mainUser.save();
-            res.status(400).json({ msg: "Thành công" });
+            res.status(200).json({ msg: "Thành công" });
           } catch (error) {
             res.status(400).json({ msg: "Đã xảy ra lỗi" });
           }
