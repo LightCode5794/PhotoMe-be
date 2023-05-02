@@ -6,7 +6,7 @@ import {
   updatePostByID,
   deletePostByID,
   searchPost,
-  likePostByID,
+  likePost,
   getAllPost,
 } from "../app/controllers/postController.js";
 
@@ -17,7 +17,7 @@ dotenv.config();
 router.post("/", createPost);
 router.get("/", getAllPost);
 router.get("/search", searchPost);
-router.post("/:id/like", likePostByID);
+router.post("/like", likePost);
 router.get("/:id", getPostByID);
 router.put("/:id", updatePostByID);
 router.delete("/:id", deletePostByID);

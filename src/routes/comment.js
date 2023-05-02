@@ -14,9 +14,9 @@ const router = express.Router();
 dotenv.config();
 
 router.get("/:id", getAllCommentPost); //id bài viết
+router.post("/like", likeComment);
 router.post("/:id", createComment); //id bài viết
 router.post("/:id/reply", replyComment); //id comment
-router.post("/:id/like", likeComment); //id comment
 router.put("/:id", updateComment); //id comment
 router.delete("/:id", deleteComment); //id comment
 

@@ -109,31 +109,48 @@ export const signup = async (req, res, next) => {
 
 //[POST]
 export const updatePassword = async (req, res, next) => {
-  const id = req.params.id;
+  const token =
+    req.headers.authorization == null
+      ? null
+      : req.headers.authorization.split(" ")[1];
+
   const password = req.body.password;
-  if (!id) {
-    return res.status(400).json({ msg: "Dont have id user" });
+  if (!password) {
+    return res.status(400).json({ msg: "Dont have new password" });
   }
-  console.log(id);
-  console.log(req.body);
-  const user = await User.updateOne(
-    { _id: id },
-    {
-      password: password,
+  if (!token) {
+    return res.status(400).json({ msg: "Dont find token" });
+  }
+  jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+    if (err) {
+      return res.status(400).json({ error: err });
     }
-  )
-    .then((docs) => {
-      if (docs) {
-        res.status(200).json({ success: true, data: docs });
-      } else {
-        res.status(200).json({ success: false, data: docs });
-      }
-    })
-    .catch((error) => {
-      return res
-        .status(400)
-        .json({ msg: "Dont update profile user", error: error });
+    bcryptjs.genSalt(10, (err, salt) => {
+      bcryptjs.hash(password, salt, async (err, hash) => {
+        if (err)
+          return res.status(400).json({ msg: "Error hashing a password" });
+
+        const user = await User.updateOne(
+          { _id: decoded.id },
+          {
+            password: hash,
+          }
+        )
+          .then((docs) => {
+            if (docs) {
+              res.status(200).json({ success: true, data: docs });
+            } else {
+              res.status(200).json({ success: false, data: docs });
+            }
+          })
+          .catch((error) => {
+            return res
+              .status(400)
+              .json({ msg: "Dont update profile user", error: error });
+          });
+      });
     });
+  });
 };
 
 //[GET]
@@ -150,61 +167,93 @@ export const getUserByID = async (req, res, next) => {
 //[PUT]
 export const updateUserByID = async (req, res, next) => {
   const id = req.params.id;
+  const token =
+    req.headers.authorization == null
+      ? null
+      : req.headers.authorization.split(" ")[1];
+
   const { name, gender, birthday, job, avatar, description } = req.body;
   if (!id) {
     return res.status(400).json({ msg: "Dont have id user" });
   }
-  console.log(id);
-  console.log(req.body);
-  const user = await User.updateOne(
-    { _id: id },
-    {
-      name: name,
-      gender: gender,
-      birthday: birthday,
-      avatar: avatar,
-      description: description,
-      job: job,
+  if (!token) {
+    return res.status(400).json({ msg: "Dont find token" });
+  }
+  jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+    if (err) {
+      return res.status(400).json({ error: err });
     }
-  )
-    .then((docs) => {
-      if (docs) {
-        User.findById(id, {})
-          .then((data) => {
-            res.status(200).json(data);
-          })
-          .catch((err) => console.log(err));
-        // res.status(200).json({ success: true, data: docs });
-      } else {
-        res.status(400).json({ success: false, data: docs });
-      }
-    })
-    .catch((error) => {
-      return res
-        .status(400)
-        .json({ msg: "Dont update profile user", error: error });
-    });
+    if (id === decoded.id) {
+      const user = await User.updateOne(
+        { _id: id },
+        {
+          name: name,
+          gender: gender,
+          birthday: birthday,
+          avatar: avatar,
+          description: description,
+          job: job,
+        }
+      )
+        .then((docs) => {
+          if (docs) {
+            User.findById(id, {})
+              .then((data) => {
+                res.status(200).json(data);
+              })
+              .catch((err) => console.log(err));
+            // res.status(200).json({ success: true, data: docs });
+          } else {
+            res.status(400).json({ success: false, data: docs });
+          }
+        })
+        .catch((error) => {
+          return res
+            .status(400)
+            .json({ msg: "Dont update profile user", error: error });
+        });
+    } else {
+      return res.status(400).json({ error: "token không trùng khớp" });
+    }
+  });
 };
 
 //[DELETE]
 export const deleteUserByID = async (req, res, next) => {
   const id = req.params.id;
+  const token =
+    req.headers.authorization == null
+      ? null
+      : req.headers.authorization.split(" ")[1];
+
   if (!id) {
     return res.status(400).json({ msg: "Dont have id user" });
   }
-  console.log(id);
-  console.log(req.body);
-  const user = await User.deleteOne({ _id: id })
-    .then((docs) => {
-      if (docs) {
-        res.status(200).json({ success: true, data: docs });
-      } else {
-        res.status(200).json({ success: false, data: docs });
-      }
-    })
-    .catch((error) => {
-      return res.status(400).json({ msg: "Dont delete user", error: error });
-    });
+  if (!token) {
+    return res.status(400).json({ msg: "Dont find token" });
+  }
+  jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+    if (err) {
+      return res.status(400).json({ error: err });
+    }
+    if (id === decoded.id) {
+      const user = await User.deleteOne({ _id: id })
+        .then((docs) => {
+          if (docs) {
+            res.status(200).json({ success: true, data: docs });
+          } else {
+            res.status(200).json({ success: false, data: docs });
+          }
+        })
+        .catch((error) => {
+          return res
+            .status(400)
+            .json({ msg: "Dont delete user", error: error });
+        });
+    } else {
+      return res.status(400).json({ error: "token không trùng khớp" });
+    }
+  });
 };
 
 //[GET]
@@ -305,42 +354,53 @@ export const getPost = async (req, res, next) => {
 };
 
 //[POST]
-export const followingUser = async (req, res, next) => {
-  const id = req.params.id;
-  const id_User = req.body.id_User;
-  console.log(id_User);
+export const followUser = async (req, res, next) => {
+  // const id = req.params.id;
+  const id_User = req.body.id_User; //được follow
+  const token =
+    req.headers.authorization == null
+      ? null
+      : req.headers.authorization.split(" ")[1]; // đang đi follow
 
   if (!id_User) {
     return res.status(400).json({ msg: "Please enter all fields" });
   }
-  User.findById(id, {})
-    .then((mainUser) => {
-      User.findById(id_User, {})
-        .then(async (user) => {
-          var index = mainUser.follower.indexOf(id_User);
-          if (index > -1) {
-            mainUser.follower.splice(index, 1);
-            index = user.following.indexOf(id);
-            user.following.splice(index, 1);
-          } else {
-            mainUser.follower.push(id_User);
-            user.following.push(id);
-          }
-          try {
-            await user.save();
-            await mainUser.save();
-            res.status(200).json({ msg: "Thành công" });
-          } catch (error) {
-            res.status(400).json({ msg: "Đã xảy ra lỗi" });
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-          res.status(400).json({ msg: "Người dùng không tồn tại 1" });
-        });
-    })
-    .catch((error) => {
-      console.log(error);
-      res.status(400).json({ msg: "Người dùng không tồn tại 2" });
-    });
+  if (!token) {
+    return res.status(400).json({ msg: "Dont find token" });
+  }
+  jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+    if (err) {
+      return res.status(400).json({ error: err });
+    }
+    User.findById(decoded.id, {})
+      .then((mainUser) => {
+        User.findById(id_User, {})
+          .then(async (user) => {
+            var index = user.follower.indexOf(id_User);
+            if (index > -1) {
+              user.follower.splice(index, 1);
+              index = mainUser.following.indexOf(decoded.id);
+              mainUser.following.splice(index, 1);
+            } else {
+              user.follower.push(id_User);
+              mainUser.following.push(decoded.id);
+            }
+            try {
+              await user.save();
+              await mainUser.save();
+              res.status(200).json({ msg: "Thành công" });
+            } catch (error) {
+              res.status(400).json({ msg: "Đã xảy ra lỗi" });
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+            res.status(400).json({ msg: "Người dùng không tồn tại 1" });
+          });
+      })
+      .catch((error) => {
+        console.log(error);
+        res.status(400).json({ msg: "Người dùng không tồn tại 2" });
+      });
+  });
 };
