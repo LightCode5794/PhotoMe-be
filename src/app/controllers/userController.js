@@ -341,8 +341,30 @@ export const getPost = async (req, res, next) => {
         },
         {}
       )
-        .then((data) => {
-          res.json(data);
+        .then(async (data) => {
+          var list = [];
+          // console.log(data);
+          for (var item of data) {
+            await User.findById(item.id_User, {})
+              .then((user) => {
+                var copyItem = item.toObject();
+                copyItem.user = {
+                  id: user.id,
+                  name: user.name,
+                  email: user.email,
+                  gender: user.gender,
+                  phoneNumber: user.phoneNumber,
+                  birthday: user.birthday,
+                  avatar: user.avatar,
+                };
+                delete copyItem.id_User;
+                // console.log(copyItem._doc);
+                list.push(copyItem);
+              })
+              .catch((err) => console.log(err));
+          }
+          res.json(list);
+          // res.json(data);
         })
         .catch((error) => {
           res.json({ error: error });

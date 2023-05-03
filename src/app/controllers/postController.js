@@ -60,8 +60,24 @@ export const getPostByID = async (req, res, next) => {
   const id = req.params.id;
   console.log(id);
   Post.findById(id, {})
-    .then((data) => {
-      res.status(200).json(data);
+    .then(async (data) => {
+      await User.findById(data.id_User, {})
+        .then((user) => {
+          var copyItem = data.toObject();
+          copyItem.user = {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            gender: user.gender,
+            phoneNumber: user.phoneNumber,
+            birthday: user.birthday,
+            avatar: user.avatar,
+          };
+          delete copyItem.id_User;
+          res.status(200).json(copyItem);
+        })
+        .catch((err) => console.log(err));
+      // res.status(200).json(data);
     })
     .catch((err) => console.log(err));
 };
@@ -77,15 +93,22 @@ export const getAllPost = async (req, res, next) => {
       for (var item of data) {
         await User.findById(item.id_User, {})
           .then((user) => {
-            // console.log(user);
-            item.user = user;
-            console.log(item);
-            list.push(item);
-            // console.log(list);
+            var copyItem = item.toObject();
+            copyItem.user = {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              gender: user.gender,
+              phoneNumber: user.phoneNumber,
+              birthday: user.birthday,
+              avatar: user.avatar,
+            };
+            delete copyItem.id_User;
+            // console.log(copyItem._doc);
+            list.push(copyItem);
           })
           .catch((err) => console.log(err));
       }
-      // console.log(list);
       res.json(list);
       // res.json(data);
     })
