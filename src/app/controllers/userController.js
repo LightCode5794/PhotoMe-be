@@ -376,21 +376,21 @@ export const followUser = async (req, res, next) => {
       .then((mainUser) => {
         User.findById(id_User, {})
           .then(async (user) => {
-            var index = user.follower.indexOf(id_User);
+            var index = mainUser.following.indexOf(id_User);
             if (index > -1) {
-              user.follower.splice(index, 1);
-              index = mainUser.following.indexOf(decoded.id);
               mainUser.following.splice(index, 1);
+              index = user.follower.indexOf(decoded.id);
+              user.follower.splice(index, 1);
             } else {
-              user.follower.push(id_User);
-              mainUser.following.push(decoded.id);
+              user.follower.push(decoded.id);
+              mainUser.following.push(id_User);
             }
             try {
               await user.save();
               await mainUser.save();
               res.status(200).json({ msg: "Thành công" });
             } catch (error) {
-              res.status(400).json({ msg: "Đã xảy ra lỗi" });
+              res.status(400).json({ msg: error });
             }
           })
           .catch((error) => {

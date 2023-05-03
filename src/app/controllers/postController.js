@@ -71,8 +71,23 @@ export const getAllPost = async (req, res, next) => {
   const id = req.params.id;
   console.log(id);
   Post.find({})
-    .then((data) => {
-      res.json(data);
+    .then(async (data) => {
+      var list = [];
+      console.log(data);
+      for (var item of data) {
+        await User.findById(item.id_User, {})
+          .then((user) => {
+            // console.log(user);
+            item.user = user;
+            console.log(item);
+            list.push(item);
+            // console.log(list);
+          })
+          .catch((err) => console.log(err));
+      }
+      // console.log(list);
+      res.json(list);
+      // res.json(data);
     })
     .catch((err) => console.log(err));
 };
@@ -167,7 +182,7 @@ export const deletePostByID = async (req, res, next) => {
     req.headers.authorization == null
       ? null
       : req.headers.authorization.split(" ")[1];
-      
+
   if (!id) {
     return res.status(400).json({ msg: "Dont have id post" });
   }
