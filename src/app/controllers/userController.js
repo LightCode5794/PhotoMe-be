@@ -4,6 +4,7 @@ import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import { dateToString } from "../../configs/function.js";
 
 dotenv.config();
 
@@ -155,10 +156,13 @@ export const updatePassword = async (req, res, next) => {
 
 //[GET]
 export const getUserByID = async (req, res, next) => {
+  console.log("get user by id");
+
   const id = req.params.id;
   console.log(id);
   User.findById(id, {})
     .then((data) => {
+      console.log(data);
       res.status(200).json(data);
     })
     .catch((err) => console.log(err));
@@ -329,7 +333,7 @@ export const getFollower = async (req, res, next) => {
 //[GET]
 export const getPost = async (req, res, next) => {
   const id = req.params.id;
-  console.log(id);
+  console.log("get post");
   User.findById(id, {})
     .then((mainUser) => {
       console.log(mainUser.post);
@@ -349,14 +353,19 @@ export const getPost = async (req, res, next) => {
               .then((user) => {
                 var copyItem = item.toObject();
                 copyItem.user = {
-                  id: user.id,
+                  _id: user.id,
                   name: user.name,
                   email: user.email,
                   gender: user.gender,
                   phoneNumber: user.phoneNumber,
                   birthday: user.birthday,
                   avatar: user.avatar,
+                  follower: user.follower,
+                  following: user.following,
                 };
+                copyItem.registration_data = dateToString(
+                  copyItem.registration_data
+                );
                 delete copyItem.id_User;
                 // console.log(copyItem._doc);
                 list.push(copyItem);
@@ -394,6 +403,8 @@ export const followUser = async (req, res, next) => {
     if (err) {
       return res.status(400).json({ error: err });
     }
+    if (decoded.id === id_User)
+      return res.status(500).json({ error: "trùng id" });
     User.findById(decoded.id, {})
       .then((mainUser) => {
         User.findById(id_User, {})
@@ -403,9 +414,11 @@ export const followUser = async (req, res, next) => {
               mainUser.following.splice(index, 1);
               index = user.follower.indexOf(decoded.id);
               user.follower.splice(index, 1);
+              console.log("hủy follow");
             } else {
               user.follower.push(decoded.id);
               mainUser.following.push(id_User);
+              console.log("follow");
             }
             try {
               await user.save();

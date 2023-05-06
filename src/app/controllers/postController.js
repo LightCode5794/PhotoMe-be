@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import Post from "../models/Post.js";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import { dateToString } from "../../configs/function.js";
 
 dotenv.config();
 
@@ -65,14 +66,19 @@ export const getPostByID = async (req, res, next) => {
         .then((user) => {
           var copyItem = data.toObject();
           copyItem.user = {
-            id: user.id,
+            _id: user.id,
             name: user.name,
             email: user.email,
             gender: user.gender,
             phoneNumber: user.phoneNumber,
             birthday: user.birthday,
             avatar: user.avatar,
+            follower: user.follower,
+            following: user.following,
           };
+          copyItem.registration_data = dateToString(
+            copyItem.registration_data
+          );
           delete copyItem.id_User;
           res.status(200).json(copyItem);
         })
@@ -84,27 +90,32 @@ export const getPostByID = async (req, res, next) => {
 
 //[GET]
 export const getAllPost = async (req, res, next) => {
+  console.log("get all post");
   const id = req.params.id;
   console.log(id);
   Post.find({})
     .then(async (data) => {
       var list = [];
-      console.log(data);
       for (var item of data) {
         await User.findById(item.id_User, {})
           .then((user) => {
             var copyItem = item.toObject();
             copyItem.user = {
-              id: user.id,
+              _id: user.id,
               name: user.name,
               email: user.email,
               gender: user.gender,
               phoneNumber: user.phoneNumber,
               birthday: user.birthday,
               avatar: user.avatar,
+              follower: user.follower,
+              following: user.following,
             };
+            copyItem.registration_data = dateToString(
+              copyItem.registration_data
+            );
             delete copyItem.id_User;
-            // console.log(copyItem._doc);
+            console.log(copyItem);
             list.push(copyItem);
           })
           .catch((err) => console.log(err));
@@ -200,6 +211,7 @@ export const likePost = async (req, res, next) => {
 
 //[DELETE]
 export const deletePostByID = async (req, res, next) => {
+  console.log("delete post");
   const id = req.params.id;
   const token =
     req.headers.authorization == null
@@ -218,15 +230,19 @@ export const deletePostByID = async (req, res, next) => {
     if (err) {
       return res.status(400).json({ error: err });
     }
-    const user = await Post.deleteOne({ _id: id, id_User: decoded.id })
+    const post = await Post.deleteOne({ _id: id, id_User: decoded.id })
       .then((docs) => {
-        if (docs) {
-          res.status(200).json({ success: true, data: docs });
+        if (docs.deletedCount != 0) {
+          console.log("Xóa thành công");
+          console.log(docs);
+          return res.status(200).json({ success: true, data: docs });
         } else {
-          res.status(200).json({ success: false, data: docs });
+          console.log("không thể xóa");
+          return res.status(500).json({ success: false, data: docs });
         }
       })
       .catch((error) => {
+        console.log("Xóa gặp lỗi");
         return res.status(400).json({ msg: "Dont delete post", error: error });
       });
   });

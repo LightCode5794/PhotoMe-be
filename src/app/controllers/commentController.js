@@ -3,6 +3,7 @@ import Comment from "../models/Comment.js";
 import Post from "../models/Post.js";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import { dateToString } from "../../configs/function.js";
 
 dotenv.config();
 
@@ -116,8 +117,9 @@ export const replyComment = async (req, res, next) => {
 
 //[POST]
 export const likeComment = async (req, res, next) => {
+  console.log("like comment");
   // const id = req.params.id;
-  const id = req.body.id_Post;
+  const id = req.body.id_comment;
   const token =
     req.headers.authorization == null
       ? null
@@ -140,12 +142,15 @@ export const likeComment = async (req, res, next) => {
           const index = mainComment.liked.indexOf(decoded.id);
           if (index > -1) {
             mainComment.liked.splice(index, 1);
+            console.log("bỏ like comment");
           } else {
             mainComment.liked.push(decoded.id);
+            console.log("like comment");
           }
           mainComment
             .save()
             .then(async (comment) => {
+              // console.log(comment.registration_data.getDay().toString().padStart(2, "0"));
               return res.status(200).json(comment);
             })
             .catch((error) => {
@@ -235,7 +240,34 @@ export const getAllCommentPost = async (req, res, next) => {
     return res.status(400).json({ msg: "Dont have id post" });
   }
   try {
-    await Comment.find({ id_Post: id }).then((comment) => res.json(comment));
+    await Comment.find({ id_Post: id }).then(async (comment) => {
+      var list = [];
+      for (var item of comment) {
+        await User.findById(item.id_User, {})
+          .then((user) => {
+            var copyItem = item.toObject();
+            copyItem.user = {
+              _id: user.id,
+              name: user.name,
+              email: user.email,
+              gender: user.gender,
+              phoneNumber: user.phoneNumber,
+              birthday: user.birthday,
+              avatar: user.avatar,
+              follower: user.follower,
+              following: user.following,
+            };
+            copyItem.registration_data = dateToString(
+              copyItem.registration_data
+            );
+            delete copyItem.id_User;
+            console.log(copyItem);
+            list.push(copyItem);
+          })
+          .catch((err) => console.log(err));
+      }
+      res.status(200).json(list);
+    });
   } catch (error) {
     res.status(400).json({ error: "Error" });
     console.log(error);
