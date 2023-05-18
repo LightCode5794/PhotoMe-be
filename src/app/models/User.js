@@ -23,7 +23,7 @@ const UserSchema = new Schema({
   },
   gender: {
     type: String,
-    required: true,
+  
   },
   birthday: {
     type: String,
