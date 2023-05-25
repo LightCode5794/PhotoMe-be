@@ -14,6 +14,7 @@ import {
   getPost,
   updateDeviceToken,
   getDeviceTokenByID,
+  getNotifications
 } from "../app/controllers/userController.js";
 const router = express.Router();
 
@@ -29,6 +30,7 @@ router.get("/:id/follower", getFollower);
 router.get("/:id/post", getPost);
 router.get("/:id", getUserByID);
 router.get("/:id/deviceToken", getDeviceTokenByID);
+router.get("/:id/notification", getNotifications);
 router.put("/:id", updateUserByID);
 router.put("/:id/deviceToken", updateDeviceToken);
 router.delete("/:id", deleteUserByID);

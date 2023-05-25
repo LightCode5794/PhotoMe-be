@@ -5,6 +5,8 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import { dateToString } from "../../configs/function.js";
+import Notification from "../models/Notification.js";
+import { getNotification } from "./notificationController.js";
 
 dotenv.config();
 
@@ -39,7 +41,7 @@ export const login = async (req, res, next) => {
               birthday: user.birthday,
               avatar: user.avatar,
               description: user.description,
-              job: user.job
+              job: user.job,
             },
           });
         }
@@ -179,7 +181,7 @@ export const updateDeviceToken = async (req, res, next) => {
       const user = await User.updateOne(
         { _id: id },
         {
-          device_token: deviceToken
+          device_token: deviceToken,
         }
       )
         .then((docs) => {
@@ -385,6 +387,45 @@ export const getFollower = async (req, res, next) => {
       )
         .then((data) => {
           res.status(200).json(data);
+        })
+        .catch((error) => {
+          res.json({ error: error });
+        });
+    })
+    .catch((error) => {
+      res.json({ error: error });
+    });
+};
+
+//[GET]
+export const getNotifications = async (req, res, next) => {
+  const id = req.params.id;
+  console.log("get post");
+  User.findById(id, {})
+    .then((mainUser) => {
+      console.log(mainUser.post);
+      Notification.find(
+        {
+          _id: {
+            $in: mainUser.notifications.map((item) => new mongoose.Types.ObjectId(item)),
+          },
+        },
+        {}
+      )
+        .then(async (data) => {
+          var list = [];
+          // console.log(data);
+          for (var item of data) {
+            await User.findById(item.id_ToUser, {})
+              .then((user) => {
+                var copyItem = item.toObject();
+                copyItem.to_user = user
+                list.push(copyItem);
+              })
+              .catch((err) => console.log(err));
+          }
+          res.json(list);
+          // res.json(data);
         })
         .catch((error) => {
           res.json({ error: error });

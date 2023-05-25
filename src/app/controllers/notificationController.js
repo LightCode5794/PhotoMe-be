@@ -1,11 +1,9 @@
 import User from "../models/User.js";
-import Comment from "../models/Comment.js";
-import Post from "../models/Post.js";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { dateToString } from "../../configs/function.js";
 import Notification from "../models/Notification.js";
-import fetch from 'node-fetch';
+import fetch from "node-fetch";
 
 dotenv.config();
 
@@ -25,7 +23,7 @@ export const createNotification = async (req, res, next) => {
     if (err) {
       return res.status(400).json({ error: err });
     }
-    
+
     const fromUserID = decoded.id;
     User.findById(toUserID, {}).then((user) => {
       const newNotification = new Notification({
@@ -59,7 +57,8 @@ export const createNotification = async (req, res, next) => {
                 body: JSON.stringify(body),
                 headers: {
                   "Content-Type": "application/json",
-                  Authorization: "key=AAAA6cObE38:APA91bEi90bNc5_SF2JuHbIodctpNUucNABJ4niET3OYkI94qa5itb-2vFFN_IQ5EX9AYWhTUsJ4IfAufCcR12nCNy1NKD7FA2DBQmfuujsg85rs_sYn60w7yJ4M7qHgN0Y42yGkli4N",
+                  Authorization:
+                    "key=AAAA6cObE38:APA91bEi90bNc5_SF2JuHbIodctpNUucNABJ4niET3OYkI94qa5itb-2vFFN_IQ5EX9AYWhTUsJ4IfAufCcR12nCNy1NKD7FA2DBQmfuujsg85rs_sYn60w7yJ4M7qHgN0Y42yGkli4N",
                 },
               }
             );
@@ -95,8 +94,14 @@ export const getNotification = async (req, res, next) => {
     Notification.findById(id, {})
       .then(async (data) => {
         var copyItem = data.toObject();
-        copyItem.time = dateToString(copyItem.time);
-        res.status(200).json(copyItem);
+
+        User.findById(copyItem.id_ToUser, {})
+          .then((user) => {
+            copyItem.time = dateToString(copyItem.time);
+            copyItem.to_user = user;
+            res.status(200).json(copyItem);
+          })
+          .catch((err) => console.log(err));
       })
       .catch((err) => console.log(err));
   });
