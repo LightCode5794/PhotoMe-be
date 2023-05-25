@@ -15,6 +15,7 @@ export const login = async (req, res, next) => {
   if (!email || !password) {
     return res.status(400).json({ err: "Enter all fields" });
   }
+
   User.findOne({ email }).then((user) => {
     if (!user)
       return res.status(400).json({ msg: "Email or Password incorrect" });
@@ -38,7 +39,7 @@ export const login = async (req, res, next) => {
               birthday: user.birthday,
               avatar: user.avatar,
               description: user.description,
-              job: user.job,
+              job: user.job
             },
           });
         }
@@ -53,21 +54,22 @@ export const signup = async (req, res, next) => {
   const { name, email, password, gender, phoneNumber, birthday, job } =
     req.body;
 
-  if (!name || !email || !password || !gender) {
+  if (!email || !password) {
     return res.status(400).json({ msg: "Please enter all fields" });
   }
+
   User.findOne({ email }).then((user) => {
     if (user) return res.status(400).json({ msg: "User Exists" });
     const newUser = new User({
-      name: name,
+      name: name ?? "name",
       email: email,
       password: password,
-      gender: gender,
-      phoneNumber: phoneNumber,
-      birthday: birthday,
+      gender: gender ?? "male",
+      // phoneNumber: phoneNumber ?? "",
+      birthday: birthday ?? "1/1/2002",
       avatar: "",
       description: "",
-      job: job,
+      job: job ?? "job",
     });
     bcryptjs.genSalt(10, (err, salt) => {
       bcryptjs.hash(newUser.password, salt, (err, hash) => {
@@ -152,6 +154,69 @@ export const updatePassword = async (req, res, next) => {
       });
     });
   });
+};
+
+//[PUT]
+export const updateDeviceToken = async (req, res, next) => {
+  const id = req.params.id;
+  const token =
+    req.headers.authorization == null
+      ? null
+      : req.headers.authorization.split(" ")[1];
+
+  const { deviceToken } = req.body;
+  if (!id) {
+    return res.status(400).json({ msg: "Dont have id user" });
+  }
+  if (!token) {
+    return res.status(400).json({ msg: "Dont find token" });
+  }
+  jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+    if (err) {
+      return res.status(400).json({ error: err });
+    }
+    if (id === decoded.id) {
+      const user = await User.updateOne(
+        { _id: id },
+        {
+          device_token: deviceToken
+        }
+      )
+        .then((docs) => {
+          if (docs) {
+            User.findById(id, {})
+              .then((data) => {
+                res.status(200).json(data);
+              })
+              .catch((err) => console.log(err));
+            // res.status(200).json({ success: true, data: docs });
+          } else {
+            res.status(400).json({ success: false, data: docs });
+          }
+        })
+        .catch((error) => {
+          return res
+            .status(400)
+            .json({ msg: "Dont update profile user", error: error });
+        });
+    } else {
+      return res.status(400).json({ error: "token không trùng khớp" });
+    }
+  });
+};
+
+//[GET]
+export const getDeviceTokenByID = async (req, res, next) => {
+  console.log("get user by id");
+
+  const id = req.params.id;
+  console.log(id);
+  User.findById(id, {})
+    .then((data) => {
+      console.log(data.device_token);
+      res.status(200).json(data.device_token);
+    })
+    .catch((err) => console.log(err));
 };
 
 //[GET]

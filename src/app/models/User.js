@@ -23,7 +23,6 @@ const UserSchema = new Schema({
   },
   gender: {
     type: String,
-  
   },
   birthday: {
     type: String,
@@ -55,9 +54,17 @@ const UserSchema = new Schema({
     type: Array,
     default: [],
   },
+  notifications: {
+    type: Array,
+    default: [],
+  },
   registration_data: {
     type: Date,
     default: Date.now,
+  },
+  device_token: {
+    type: String,
+    default: "",
   },
 });
 

@@ -12,6 +12,8 @@ import {
   getFollowing,
   followUser,
   getPost,
+  updateDeviceToken,
+  getDeviceTokenByID,
 } from "../app/controllers/userController.js";
 const router = express.Router();
 
@@ -26,7 +28,9 @@ router.get("/:id/following", getFollowing);
 router.get("/:id/follower", getFollower);
 router.get("/:id/post", getPost);
 router.get("/:id", getUserByID);
+router.get("/:id/deviceToken", getDeviceTokenByID);
 router.put("/:id", updateUserByID);
+router.put("/:id/deviceToken", updateDeviceToken);
 router.delete("/:id", deleteUserByID);
 
 export default router;
