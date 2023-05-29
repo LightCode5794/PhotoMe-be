@@ -52,13 +52,15 @@ export const login = async (req, res, next) => {
 
 //[POST]
 export const signup = async (req, res, next) => {
-  // console.log(req.body)
+  console.log(req.body)
   const { name, email, password, gender, phoneNumber, birthday, job } =
     req.body;
 
-  if (!email || !password) {
+  if (!email || !password || !gender || !phoneNumber || !name) {
     return res.status(400).json({ msg: "Please enter all fields" });
   }
+  // console.log(req.body)
+
 
   User.findOne({ email }).then((user) => {
     if (user) return res.status(400).json({ msg: "User Exists" });
@@ -66,8 +68,8 @@ export const signup = async (req, res, next) => {
       name: name ?? "name",
       email: email,
       password: password,
-      gender: gender ?? "male",
-      // phoneNumber: phoneNumber ?? "",
+      gender: gender,
+      phoneNumber: phoneNumber,
       birthday: birthday ?? "1/1/2002",
       avatar: "",
       description: "",
@@ -86,7 +88,7 @@ export const signup = async (req, res, next) => {
               process.env.JWT_SECRET,
               { expiresIn: 3600 },
               (err, token) => {
-                if (err) throw err;
+                if (err) throw {err};
                 return res.status(200).json({
                   token,
                   user: {
@@ -105,7 +107,10 @@ export const signup = async (req, res, next) => {
               }
             );
           })
-          .catch((err) => res.status(401).send(err));
+          .catch((err) => {
+            console.log(err);
+            res.status(401).send(err);
+          });
       });
     });
     console.log(req.body);
@@ -171,6 +176,7 @@ export const updateDeviceToken = async (req, res, next) => {
     return res.status(400).json({ msg: "Dont have id user" });
   }
   if (!token) {
+    console.log(req.headers.authorization);
     return res.status(400).json({ msg: "Dont find token" });
   }
   jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
@@ -193,15 +199,18 @@ export const updateDeviceToken = async (req, res, next) => {
               .catch((err) => console.log(err));
             // res.status(200).json({ success: true, data: docs });
           } else {
+            print("hmm");
             res.status(400).json({ success: false, data: docs });
           }
         })
         .catch((error) => {
+          print(error);
           return res
             .status(400)
             .json({ msg: "Dont update profile user", error: error });
         });
     } else {
+      print("error");
       return res.status(400).json({ error: "token không trùng khớp" });
     }
   });
@@ -407,7 +416,9 @@ export const getNotifications = async (req, res, next) => {
       Notification.find(
         {
           _id: {
-            $in: mainUser.notifications.map((item) => new mongoose.Types.ObjectId(item)),
+            $in: mainUser.notifications.map(
+              (item) => new mongoose.Types.ObjectId(item)
+            ),
           },
         },
         {}
@@ -419,7 +430,7 @@ export const getNotifications = async (req, res, next) => {
             await User.findById(item.id_ToUser, {})
               .then((user) => {
                 var copyItem = item.toObject();
-                copyItem.to_user = user
+                copyItem.to_user = user;
                 list.push(copyItem);
               })
               .catch((err) => console.log(err));
