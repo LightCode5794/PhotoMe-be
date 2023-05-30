@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+
+
 const Schema = mongoose.Schema;
 
 const NotificationSchema = new Schema({
@@ -23,6 +25,7 @@ const NotificationSchema = new Schema({
     default: false,
   }
 });
+
 
 const Notification = mongoose.model("notification", NotificationSchema);
 

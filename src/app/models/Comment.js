@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import MongooseDelete from "mongoose-delete";
+
 const Schema = mongoose.Schema;
 
 const CommentSchema = new Schema({
@@ -27,6 +29,9 @@ const CommentSchema = new Schema({
     default: Date.now,
   },
 });
+
+//add plugins
+CommentSchema.plugin(MongooseDelete);
 
 const Comment = mongoose.model("comment", CommentSchema);
 

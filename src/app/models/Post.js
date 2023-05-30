@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import MongooseDelete from "mongoose-delete";
 
 const PostSchema = new mongoose.Schema({
   id_User: {
@@ -24,6 +25,9 @@ const PostSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
+
+//add plugins
+PostSchema.plugin(MongooseDelete);
 
 const Post = mongoose.model("Post", PostSchema);
 

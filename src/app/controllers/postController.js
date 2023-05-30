@@ -221,31 +221,38 @@ export const deletePostByID = async (req, res, next) => {
   if (!id) {
     return res.status(400).json({ msg: "Dont have id post" });
   }
-  if (!token) {
-    return res.status(400).json({ msg: "Dont find token" });
-  }
+  // if (!token) {
+  //   return res.status(400).json({ msg: "Dont find token" });
+  // }
   console.log(id);
   console.log(req.body);
-  jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
-    if (err) {
-      return res.status(400).json({ error: err });
-    }
-    const post = await Post.deleteOne({ _id: id, id_User: decoded.id })
-      .then((docs) => {
-        if (docs.deletedCount != 0) {
-          console.log("Xóa thành công");
-          console.log(docs);
-          return res.status(200).json({ success: true, data: docs });
-        } else {
-          console.log("không thể xóa");
-          return res.status(500).json({ success: false, data: docs });
-        }
-      })
-      .catch((error) => {
-        console.log("Xóa gặp lỗi");
-        return res.status(400).json({ msg: "Dont delete post", error: error });
-      });
-  });
+  // jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+  //   if (err) {
+  //     return res.status(400).json({ error: err });
+  //   }
+  try {
+    const post = await Post.restore({ _id: id})
+    res.json({...post, token: 'adfasdfsdf'});
+  }
+  catch (error) {
+    return res.status(400).json({ error: error });
+  }
+    // const post = await Post.deleteOne({ _id: id, id_User: decoded.id })
+    //   .then((docs) => {
+    //     if (docs.deletedCount != 0) {
+    //       console.log("Xóa thành công");
+    //       console.log(docs);
+    //       return res.status(200).json({ success: true, data: docs });
+    //     } else {
+    //       console.log("không thể xóa");
+    //       return res.status(500).json({ success: false, data: docs });
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     console.log("Xóa gặp lỗi");
+    //     return res.status(400).json({ msg: "Dont delete post", error: error });
+    //   });
+  // });
 };
 
 //[GET]
