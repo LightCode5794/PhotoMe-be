@@ -2,9 +2,10 @@ import mongoose from "mongoose";
 import MongooseDelete from "mongoose-delete";
 
 const PostSchema = new mongoose.Schema({
-  id_User: {
-    type: String,
-    required: true,
+  User: {
+    type:  mongoose.Schema.Types.ObjectId,
+    ref: "User",
+   
   },
   description: {
     type: String,
@@ -12,22 +13,20 @@ const PostSchema = new mongoose.Schema({
   photo: {
     type: Array,
   },
-  liked: {
-    type: Array,
-    default: [],
-  },
-  comment: {
-    type: Array,
-    default: [],
-  },
+
+  liked:  [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
+
   registration_data: {
     type: Date,
     default: Date.now,
   },
-});
+},
+{ timestamps: true },
+);
 
 //add plugins
-PostSchema.plugin(MongooseDelete);
+PostSchema.plugin(MongooseDelete, { overrideMethods: 'all', deletedAt: true });
 
 const Post = mongoose.model("Post", PostSchema);
 

@@ -4,35 +4,38 @@ import MongooseDelete from "mongoose-delete";
 const Schema = mongoose.Schema;
 
 const CommentSchema = new Schema({
-  id_User: {
-    type: String,
+  User: {
+    type:  mongoose.Schema.Types.ObjectId,
+    ref: "User",
     required: true,
   },
-  id_Post: {
-    type: String,
+  Post: {
+    type:  mongoose.Schema.Types.ObjectId,
+    ref: "Post",
     required: true,
   },
   comment: {
     type: String,
     required: true,
   },
-  liked: {
-    type: Array,
-    default: [],
+  parentComment: {
+    type:  mongoose.Schema.Types.ObjectId,
+    ref: "Comment",
   },
-  reply: {
-    type: Array,
-    default: [],
-  },
+
+  liked: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  reply: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
   registration_data: {
     type: Date,
     default: Date.now,
   },
-});
+},
+{ timestamps: true },
+);
 
 //add plugins
-CommentSchema.plugin(MongooseDelete);
+CommentSchema.plugin(MongooseDelete, { overrideMethods: 'all', deletedAt: true });
 
-const Comment = mongoose.model("comment", CommentSchema);
+const Comment = mongoose.model("Comment", CommentSchema);
 
 export default Comment;

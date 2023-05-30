@@ -1,5 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
+//middleware
+import isAuth from "../middlewares/isAuth.js";
+
 import {
   getAllCommentPost,
   createComment,
@@ -14,10 +17,10 @@ const router = express.Router();
 dotenv.config();
 
 router.get("/:id", getAllCommentPost); //id bài viết
-router.post("/like", likeComment);
-router.post("/:id", createComment); //id bài viết
-router.post("/:id/reply", replyComment); //id comment
-router.put("/:id", updateComment); //id comment
-router.delete("/:id", deleteComment); //id comment
+router.post("/like", isAuth, likeComment);
+router.post("/:id", isAuth, createComment); //id bài viết
+router.post("/:id/reply", isAuth, replyComment); //id comment
+router.put("/:id", isAuth, updateComment); //id comment
+router.delete("/:id", isAuth, deleteComment); //id comment
 
 export default router;

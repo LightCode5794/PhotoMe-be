@@ -26,7 +26,7 @@ export const login = async (req, res, next) => {
       jwt.sign(
         { id: user.id },
         process.env.JWT_SECRET,
-        { expiresIn: "365d" },
+        { expiresIn: '365d' },
         (err, token) => {
           if (err) throw err;
           res.status(200).json({
@@ -86,7 +86,7 @@ export const signup = async (req, res, next) => {
             jwt.sign(
               { id: user.id },
               process.env.JWT_SECRET,
-              { expiresIn: 3600 },
+              { expiresIn: '24h' },
               (err, token) => {
                 if (err) throw {err};
                 return res.status(200).json({
@@ -119,29 +119,17 @@ export const signup = async (req, res, next) => {
 
 //[POST]
 export const updatePassword = async (req, res, next) => {
-  const token =
-    req.headers.authorization == null
-      ? null
-      : req.headers.authorization.split(" ")[1];
-
+ 
   const password = req.body.password;
   if (!password) {
     return res.status(400).json({ msg: "Dont have new password" });
   }
-  if (!token) {
-    return res.status(400).json({ msg: "Dont find token" });
-  }
-  jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
-    if (err) {
-      return res.status(400).json({ error: err });
-    }
     bcryptjs.genSalt(10, (err, salt) => {
       bcryptjs.hash(password, salt, async (err, hash) => {
         if (err)
           return res.status(400).json({ msg: "Error hashing a password" });
-
         const user = await User.updateOne(
-          { _id: decoded.id },
+          { _id:  req.PhoToUser.id },
           {
             password: hash,
           }
@@ -160,30 +148,18 @@ export const updatePassword = async (req, res, next) => {
           });
       });
     });
-  });
 };
 
 //[PUT]
 export const updateDeviceToken = async (req, res, next) => {
   const id = req.params.id;
-  const token =
-    req.headers.authorization == null
-      ? null
-      : req.headers.authorization.split(" ")[1];
 
   const { deviceToken } = req.body;
   if (!id) {
     return res.status(400).json({ msg: "Dont have id user" });
   }
-  if (!token) {
-    console.log(req.headers.authorization);
-    return res.status(400).json({ msg: "Dont find token" });
-  }
-  jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
-    if (err) {
-      return res.status(400).json({ error: err });
-    }
-    if (id === decoded.id) {
+
+    if (id ===  req.PhoToUser.id) {
       const user = await User.updateOne(
         { _id: id },
         {
@@ -213,7 +189,6 @@ export const updateDeviceToken = async (req, res, next) => {
       print("error");
       return res.status(400).json({ error: "token không trùng khớp" });
     }
-  });
 };
 
 //[GET]
@@ -247,23 +222,12 @@ export const getUserByID = async (req, res, next) => {
 //[PUT]
 export const updateUserByID = async (req, res, next) => {
   const id = req.params.id;
-  const token =
-    req.headers.authorization == null
-      ? null
-      : req.headers.authorization.split(" ")[1];
-
+  
   const { name, gender, birthday, job, avatar, description } = req.body;
   if (!id) {
     return res.status(400).json({ msg: "Dont have id user" });
   }
-  if (!token) {
-    return res.status(400).json({ msg: "Dont find token" });
-  }
-  jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
-    if (err) {
-      return res.status(400).json({ error: err });
-    }
-    if (id === decoded.id) {
+    if (id ===  req.PhoToUser.id) {
       const user = await User.updateOne(
         { _id: id },
         {
@@ -295,28 +259,16 @@ export const updateUserByID = async (req, res, next) => {
     } else {
       return res.status(400).json({ error: "token không trùng khớp" });
     }
-  });
 };
 
 //[DELETE]
 export const deleteUserByID = async (req, res, next) => {
   const id = req.params.id;
-  const token =
-    req.headers.authorization == null
-      ? null
-      : req.headers.authorization.split(" ")[1];
-
+  
   if (!id) {
     return res.status(400).json({ msg: "Dont have id user" });
   }
-  if (!token) {
-    return res.status(400).json({ msg: "Dont find token" });
-  }
-  jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
-    if (err) {
-      return res.status(400).json({ error: err });
-    }
-    if (id === decoded.id) {
+    if (id ===  req.PhoToUser.id) {
       const user = await User.deleteOne({ _id: id })
         .then((docs) => {
           if (docs) {
@@ -333,7 +285,7 @@ export const deleteUserByID = async (req, res, next) => {
     } else {
       return res.status(400).json({ error: "token không trùng khớp" });
     }
-  });
+
 };
 
 //[GET]
@@ -505,35 +457,24 @@ export const getPost = async (req, res, next) => {
 export const followUser = async (req, res, next) => {
   // const id = req.params.id;
   const id_User = req.body.id_User; //được follow
-  const token =
-    req.headers.authorization == null
-      ? null
-      : req.headers.authorization.split(" ")[1]; // đang đi follow
-
+  
   if (!id_User) {
     return res.status(400).json({ msg: "Please enter all fields" });
   }
-  if (!token) {
-    return res.status(400).json({ msg: "Dont find token" });
-  }
-  jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
-    if (err) {
-      return res.status(400).json({ error: err });
-    }
-    if (decoded.id === id_User)
+    if ( req.PhoToUser.id === id_User)
       return res.status(500).json({ error: "trùng id" });
-    User.findById(decoded.id, {})
+    User.findById( req.PhoToUser.id, {})
       .then((mainUser) => {
         User.findById(id_User, {})
           .then(async (user) => {
             var index = mainUser.following.indexOf(id_User);
             if (index > -1) {
               mainUser.following.splice(index, 1);
-              index = user.follower.indexOf(decoded.id);
+              index = user.follower.indexOf( req.PhoToUser.id);
               user.follower.splice(index, 1);
               console.log("hủy follow");
             } else {
-              user.follower.push(decoded.id);
+              user.follower.push( req.PhoToUser.id);
               mainUser.following.push(id_User);
               console.log("follow");
             }
@@ -554,5 +495,4 @@ export const followUser = async (req, res, next) => {
         console.log(error);
         res.status(400).json({ msg: "Người dùng không tồn tại 2" });
       });
-  });
 };

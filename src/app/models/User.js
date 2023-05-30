@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import MongooseDelete from "mongoose-delete";
 
 const Schema = mongoose.Schema;
 
@@ -43,10 +42,9 @@ const UserSchema = new Schema({
     type: String,
     required: false,
   },
-  post: {
-    type: Array,
-    default: [],
-  },
+  
+  post: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
+
   follower: {
     type: Array,
     default: [],
@@ -67,11 +65,11 @@ const UserSchema = new Schema({
     type: String,
     default: "",
   },
-});
+},
+{ timestamps: true },
+);
 
-//add plugins
-UserSchema.plugin(MongooseDelete);
 
-const User = mongoose.model("user", UserSchema);
+const User = mongoose.model("User", UserSchema);
 
 export default User;
