@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import MongooseDelete from "mongoose-delete";
 
+
 const PostSchema = new mongoose.Schema({
   User: {
     type:  mongoose.Schema.Types.ObjectId,

@@ -14,30 +14,30 @@ export const createPost = async (req, res, next) => {
   if (!description && !photo) {
     return res.status(400).json({ msg: "Please enter all fields" });
   }
-    try {
-    
-      const userId = req.PhoToUser.id;
-      const newPost = new Post({
-        User: userId,
-        description: description,
-        photo: photo,
-      });
-      await newPost.save();
-    ;
-       const user = await User.findOne({_id: userId});
-    
-      if(!user) {
-        res.status(404).json({ msg: "User not found!"});
-      }
-      user.post.push(newPost._id);
-     
-      await user.save();
+  try {
 
-      res.status(200).json({ msg: "Đăng bài thành công!" });
+    const userId = req.PhoToUser.id;
+    const newPost = new Post({
+      User: userId,
+      description: description,
+      photo: photo,
+    });
+    await newPost.save();
+    ;
+    const user = await User.findOne({ _id: userId });
+
+    if (!user) {
+      res.status(404).json({ msg: "User not found!" });
     }
-    catch {
-      return res.status(400).json({ error: 'Đăng bài không thành công' });
-    }
+    user.post.push(newPost._id);
+
+    await user.save();
+
+    res.status(200).json({ msg: "Đăng bài thành công!" });
+  }
+  catch {
+    return res.status(400).json({ error: 'Đăng bài không thành công' });
+  }
 
 };
 
@@ -45,24 +45,21 @@ export const createPost = async (req, res, next) => {
 export const getPostByID = async (req, res, next) => {
   const idPost = req.params.id;
   console.log(idPost);
-  try{
+  try {
     const post = await Post.findById(idPost)
-                           .populate({ path: 'User', select: '-password' })
-                           .populate({ path: 'liked', select: '-password' })
-                           .populate('comments')
-    
-    if (!post) {
-      return res.status(404).json({ msg: "Post not found!" });
-    }         
+      .populate({ path: 'User', select: '-password' })
+      .populate({ path: 'liked', select: '-password' })
+      .populate('comments')
+
     if (!post) {
       return res.status(404).json({ msg: "Post not found!" });
     }
-    res.status(200).json({
-      ...post,
-      registration_data : dateToString(post.createdAt) 
-      });
+    if (!post) {
+      return res.status(404).json({ msg: "Post not found!" });
+    }
+    res.status(200).json(post);
   }
-  catch(err) {
+  catch (err) {
     res.status(404).json({ msg: "Get Fail!" });
   }
   // Post.findById(id, {})
@@ -95,28 +92,24 @@ export const getPostByID = async (req, res, next) => {
 
 //[GET]
 export const getAllPost = async (req, res, next) => {
+  // try{
+  const posts = await Post.find({})
+    // .populate({ path: 'User', select: '-password' })
+    // .populate({ path: 'liked', select: '-password' })
+    // .populate('comments')
 
-
-  try{
-    const post = await Post.find({})
-                           .populate({ path: 'User', select: '-password' })
-                           .populate({ path: 'liked', select: '-password' })
-                           .populate('comments')
-    
-    if (!post) {
-      return res.status(404).json({ msg: "Post not found!" });
-    }         
-    if (!post) {
-      return res.status(404).json({ msg: "Post not found!" });
-    }
-    res.status(200).json({
-      ...post,
-      registration_data : dateToString(post.createdAt) 
-      });
+  if (!posts) {
+    return res.status(404).json({ msg: "Post not found!" });
   }
-  catch(err) {
-    res.status(404).json({ msg: "Get Fail!" });
+  if (!posts) {
+    return res.status(404).json({ msg: "Post not found!" });
   }
+  
+  res.status(200).json(posts);
+  // }
+  // catch(err) {
+  //   res.status(404).json({ msg: "Get Fail!" });
+  // }
   // Post.find({})
   //   .then(async (data) => {
   //     var list = [];
@@ -169,28 +162,28 @@ export const updatePostByID = async (req, res, next) => {
   //   if (err) {
   //     return res.status(400).json({ error: err });
   //   }
-    const post = await Post.updateOne(
-      { _id: id, User: req.PhoToUser.id },
-      {
-        photo: photo,
-        description: description,
+  const post = await Post.updateOne(
+    { _id: id, User: req.PhoToUser.id },
+    {
+      photo: photo,
+      description: description,
+    }
+  )
+    .then((docs) => {
+      if (docs) {
+        Post.findById(id, {})
+          .then((data) => {
+            res.status(200).json(data);
+          })
+          .catch((err) => console.log(err));
+        // res.status(200).json({ success: true, data: docs });
+      } else {
+        res.status(200).json({ success: false, data: docs });
       }
-    )
-      .then((docs) => {
-        if (docs) {
-          Post.findById(id, {})
-            .then((data) => {
-              res.status(200).json(data);
-            })
-            .catch((err) => console.log(err));
-          // res.status(200).json({ success: true, data: docs });
-        } else {
-          res.status(200).json({ success: false, data: docs });
-        }
-      })
-      .catch((error) => {
-        return res.status(400).json({ msg: "Dont update post" });
-      });
+    })
+    .catch((error) => {
+      return res.status(400).json({ msg: "Dont update post" });
+    });
   // });
 };
 
@@ -215,21 +208,21 @@ export const likePost = async (req, res, next) => {
   //   if (err) {
   //     return res.status(400).json({ error: err });
   //   }
-    Post.findById(id, {})
-      .then(async (post) => {
-        const index = post.liked.indexOf(req.PhoToUser.id);
-        if (index > -1) {
-          post.liked.splice(index, 1);
-        } else {
-          post.liked.push(req.PhoToUser.id);
-        }
-        post.save().then((newPost) => {
-          return res.status(200).json(newPost);
-        });
-      })
-      .catch((error) => {
-        return res.status(400).json({ msg: "Bài viết không tồn tại" });
+  Post.findById(id, {})
+    .then(async (post) => {
+      const index = post.liked.indexOf(req.PhoToUser.id);
+      if (index > -1) {
+        post.liked.splice(index, 1);
+      } else {
+        post.liked.push(req.PhoToUser.id);
+      }
+      post.save().then((newPost) => {
+        return res.status(200).json(newPost);
       });
+    })
+    .catch((error) => {
+      return res.status(400).json({ msg: "Bài viết không tồn tại" });
+    });
   // });
 };
 
@@ -241,13 +234,13 @@ export const deletePostByID = async (req, res, next) => {
   if (!idPost) {
     return res.status(400).json({ msg: "Dont have id post" });
   }
-    try {
-      await Post.delete({ _id: idPost})
-      res.json({msg: 'Delete successfully!'});
-    }
-    catch (error) {
-      return res.status(400).json({ error: error });
-    }
+  try {
+    await Post.delete({ _id: idPost })
+    res.json({ msg: 'Delete successfully!' });
+  }
+  catch (error) {
+    return res.status(400).json({ error: error });
+  }
 };
 
 //[GET]
