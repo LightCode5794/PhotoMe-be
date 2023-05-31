@@ -92,24 +92,24 @@ export const getPostByID = async (req, res, next) => {
 
 //[GET]
 export const getAllPost = async (req, res, next) => {
-  // try{
-  const posts = await Post.find({})
-    // .populate({ path: 'User', select: '-password' })
-    // .populate({ path: 'liked', select: '-password' })
-    // .populate('comments')
+  try {
+    const posts = await Post.find({})
+      .populate({ path: 'User', select: '-password' })
+      .populate({ path: 'liked', select: '-password' })
+      .populate('comments')
 
-  if (!posts) {
-    return res.status(404).json({ msg: "Post not found!" });
+    if (!posts) {
+      return res.status(404).json({ msg: "Post not found!" });
+    }
+    if (!posts) {
+      return res.status(404).json({ msg: "Post not found!" });
+    }
+
+    res.status(200).json(posts);
   }
-  if (!posts) {
-    return res.status(404).json({ msg: "Post not found!" });
+  catch (err) {
+    res.status(404).json({ msg: "Get Fail!" });
   }
-  
-  res.status(200).json(posts);
-  // }
-  // catch(err) {
-  //   res.status(404).json({ msg: "Get Fail!" });
-  // }
   // Post.find({})
   //   .then(async (data) => {
   //     var list = [];
