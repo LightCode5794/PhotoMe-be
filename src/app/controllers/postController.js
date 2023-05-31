@@ -231,7 +231,7 @@ export const deletePostByID = async (req, res, next) => {
     return res.status(400).json({ msg: "Dont have id post" });
   }
   try {
-    await Post.delete({ _id: idPost });
+    await Post.delete({ _id: idPost, user: req.PhoToUser.id });
     
     res.json({ msg: "Delete successfully!" });
   } catch (error) {

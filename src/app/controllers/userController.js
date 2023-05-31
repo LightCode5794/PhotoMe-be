@@ -403,68 +403,69 @@ export const getNotifications = async (req, res, next) => {
 export const getPost = async (req, res, next) => {
   const idUser = req.params.id;
   console.log("get post");
-  // try {
-  //   const user = await User.findById(idUser, 'post')
-  //     .populate('post')
-  //    const userInfo = await User.findById(idUser).select('-post');
-      
-  //    const formatUser = user.post.map((post) => ({
-  //     ...post,
-  //     user: userInfo
-  //    }))
-  //   res.status(200).json(formatUser);
-  // }
-  // catch (err) {
-  //   res.json({ error: err });
-  // }
+  try {
+    const user = await User.findById(idUser, 'post')
+      .populate('post', null, { deleted: false });
 
-  User.findById(idUser, {})
-    .then((mainUser) => {
-      Post.find(
-        {
-          _id: {
-            $in: mainUser.post.map((item) => new mongoose.Types.ObjectId(item)),
-          },
-        },
-        {}
-      )
-        .then(async (data) => {
-          var list = [];
-          // console.log(data);
-          for (var item of data) {
-            await User.findById(item.user, {})
-              .then((user) => {
-                var copyItem = item.toObject();
-                copyItem.user = {
-                  _id: user.id,
-                  name: user.name,
-                  email: user.email,
-                  gender: user.gender,
-                  phoneNumber: user.phoneNumber,
-                  birthday: user.birthday,
-                  avatar: user.avatar,
-                  follower: user.follower,
-                  following: user.following,
-                };
-                // copyItem.registration_data = dateToString(
-                //   copyItem.registration_data
-                // );
-                delete copyItem.id_User;
-                // console.log(copyItem._doc);
-                list.push(copyItem);
-              })
-              .catch((err) => console.log(err));
-          }
-          res.json(list);
-          // res.json(data);
-        })
-        .catch((error) => {
-          res.json({ error: error });
-        });
-    })
-    .catch((error) => {
-      res.json({ error: error });
-    });
+    const userInfo = await User.findById(idUser).select('-post -password');
+
+    const formatPostsArr = user.post.map((post) => ({
+      ...post.toObject(),
+      user: userInfo.toObject()
+    }))
+    res.json(formatPostsArr);
+  }
+  catch (err) {
+    res.json({ error: err.message });
+  }
+
+  // User.findById(idUser, {})
+  //   .then((mainUser) => {
+  //     Post.find(
+  //       {
+  //         _id: {
+  //           $in: mainUser.post.map((item) => new mongoose.Types.ObjectId(item)),
+  //         },
+  //       },
+  //       {}
+  //     )
+  //       .then(async (data) => {
+  //         var list = [];
+  //         // console.log(data);
+  //         for (var item of data) {
+  //           await User.findById(item.user, {})
+  //             .then((user) => {
+  //               var copyItem = item.toObject();
+  //               copyItem.user = {
+  //                 _id: user.id,
+  //                 name: user.name,
+  //                 email: user.email,
+  //                 gender: user.gender,
+  //                 phoneNumber: user.phoneNumber,
+  //                 birthday: user.birthday,
+  //                 avatar: user.avatar,
+  //                 follower: user.follower,
+  //                 following: user.following,
+  //               };
+  //               // copyItem.registration_data = dateToString(
+  //               //   copyItem.registration_data
+  //               // );
+  //               delete copyItem.id_User;
+  //               // console.log(copyItem._doc);
+  //               list.push(copyItem);
+  //             })
+  //             .catch((err) => console.log(err));
+  //         }
+  //         res.json(list);
+  //         // res.json(data);
+  //       })
+  //       .catch((error) => {
+  //         res.json({ error: error });
+  //       });
+  //   })
+  //   .catch((error) => {
+  //     res.json({ error: error });
+  //   });
 };
 
 //[POST]
