@@ -271,7 +271,7 @@ export const getAllCommentPost = async (req, res, next) => {
   if (!idPost) {
     return res.status(400).json({ msg: "Dont have id post" });
   }
-  // try{
+  try{
     console.log(idPost);
     const  comments = await Comment.find({ post: idPost })
                            .populate({ path: 'user', select: '-password -device_token' })
@@ -286,10 +286,10 @@ export const getAllCommentPost = async (req, res, next) => {
       return res.status(404).json({ msg: "Post not found!" });
     }
     res.status(200).json(comments);
-  // }
-  // catch(err) {
-  //   res.status(404).json({ msg: "Get Fail!" });
-  // }
+  }
+  catch(err) {
+    res.status(404).json({ msg: "Get Fail!" });
+  }
   // try {
   //   await Comment.find({ Post: id }).then(async (comment) => {
   //     var list = [];
