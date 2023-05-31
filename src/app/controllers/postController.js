@@ -94,8 +94,8 @@ export const getPostByID = async (req, res, next) => {
 export const getAllPost = async (req, res, next) => {
   try {
     const posts = await Post.find({})
-      //.populate({ path: 'User', select: '-password' })
-      .populate({ path: 'liked', select: '-password' })
+      .populate({ path: 'User', select: '-password' })
+     // .populate({ path: 'liked', select: '-password' })
       .populate('comments')
 
     if (!posts) {
