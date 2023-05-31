@@ -284,10 +284,7 @@ export const getAllCommentPost = async (req, res, next) => {
     if (!comment) {
       return res.status(404).json({ msg: "Post not found!" });
     }
-    res.status(200).json({
-      ...comment,
-      registration_data : dateToString(comment.createdAt) 
-      });
+    res.status(200).json(comment);
   // }
   // catch(err) {
   //   res.status(404).json({ msg: "Get Fail!" });
