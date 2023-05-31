@@ -96,7 +96,7 @@ export const getAllPost = async (req, res, next) => {
     const posts = await Post.find({})
       .populate({ path: 'User', select: '-password' })
      // .populate({ path: 'liked', select: '-password' })
-      .populate('comments')
+      //.populate('comments')
 
     if (!posts) {
       return res.status(404).json({ msg: "Post not found!" });
