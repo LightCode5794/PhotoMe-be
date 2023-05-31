@@ -8,14 +8,12 @@ dotenv.config();
 
 //[POST]
 export const createPost = async (req, res, next) => {
-
   const { description, photo } = req.body;
 
   if (!description && !photo) {
     return res.status(400).json({ msg: "Please enter all fields" });
   }
   try {
-
     const userId = req.PhoToUser.id;
     const newPost = new Post({
       user: userId,
@@ -23,7 +21,6 @@ export const createPost = async (req, res, next) => {
       photo: photo,
     });
     await newPost.save();
-    ;
     const user = await User.findOne({ _id: userId });
 
     if (!user) {
@@ -33,12 +30,10 @@ export const createPost = async (req, res, next) => {
 
     await user.save();
 
-    res.status(200).json({ msg: "Đăng bài thành công!" });
+    res.status(200).send(newPost._id);
+  } catch {
+    return res.status(400).json({ error: "Đăng bài không thành công" });
   }
-  catch {
-    return res.status(400).json({ error: 'Đăng bài không thành công' });
-  }
-
 };
 
 //[GET]
@@ -46,8 +41,10 @@ export const getPostByID = async (req, res, next) => {
   const idPost = req.params.id;
   console.log(idPost);
   try {
-    const post = await Post.findById(idPost)
-      .populate({ path: 'user', select: '-password' })
+    const post = await Post.findById(idPost).populate({
+      path: "user",
+      select: "-password",
+    });
     // .populate({ path: 'liked', select: '-password' })
     //.populate('comments')
 
@@ -58,8 +55,7 @@ export const getPostByID = async (req, res, next) => {
       return res.status(404).json({ msg: "Post not found!" });
     }
     res.status(200).json(post);
-  }
-  catch (err) {
+  } catch (err) {
     res.status(404).json({ msg: "Get Fail!" });
   }
   // Post.findById(id, {})
@@ -93,8 +89,10 @@ export const getPostByID = async (req, res, next) => {
 //[GET]
 export const getAllPost = async (req, res, next) => {
   try {
-    const posts = await Post.find({})
-      .populate({ path: 'user', select: '-password' })
+    const posts = await Post.find({}).populate({
+      path: "user",
+      select: "-password",
+    });
     // .populate({ path: 'liked', select: '-password' })
     //.populate('comments')
 
@@ -106,8 +104,7 @@ export const getAllPost = async (req, res, next) => {
     }
 
     res.status(200).json(posts);
-  }
-  catch (err) {
+  } catch (err) {
     res.status(404).json({ msg: "Get Fail!" });
   }
   // Post.find({})
@@ -228,17 +225,15 @@ export const likePost = async (req, res, next) => {
 
 //[DELETE]
 export const deletePostByID = async (req, res, next) => {
-
   const idPost = req.params.id;
 
   if (!idPost) {
     return res.status(400).json({ msg: "Dont have id post" });
   }
   try {
-    await Post.delete({ _id: idPost })
-    res.json({ msg: 'Delete successfully!' });
-  }
-  catch (error) {
+    await Post.delete({ _id: idPost });
+    res.json({ msg: "Delete successfully!" });
+  } catch (error) {
     return res.status(400).json({ error: error });
   }
 };
