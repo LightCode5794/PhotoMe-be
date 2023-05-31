@@ -35,7 +35,7 @@ router.get("/:id", getUserByID);
 router.get("/:id/deviceToken", getDeviceTokenByID);
 router.get("/:id/notification", getNotifications);
 router.put("/:id", isAuth, updateUserByID);
-router.put("/:id/deviceToken", updateDeviceToken);
+router.put("/:id/deviceToken", isAuth, updateDeviceToken);
 router.delete("/:id", isAuth, deleteUserByID);
 
 export default router;
