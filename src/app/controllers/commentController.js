@@ -25,8 +25,8 @@ export const createComment = async (req, res, next) => {
 
     try {
       const newComment = new Comment({
-        Post: idPost,
-        User:  req.PhoToUser.id,
+        post: idPost,
+        user:  req.PhoToUser.id,
         comment: comment,
       });
       await newComment.save();
@@ -100,8 +100,8 @@ export const replyComment = async (req, res, next) => {
               return res.status(400).json({ msg: "Comment not found" });
       }
       const newReplyComment = new Comment({
-        Post: id,
-        User:  req.PhoToUser.id,
+        post: id,
+        user:  req.PhoToUser.id,
         comment: comment,
         parentComment: mainComment._id,
       });
@@ -209,7 +209,7 @@ export const updateComment = async (req, res, next) => {
   //     return res.status(400).json({ error: err });
   //   }
     const comment = await Comment.updateOne(
-      { _id: id, User:  req.PhoToUser.id },
+      { _id: id, user:  req.PhoToUser.id },
       { comment: req.body.comment }
     )
       .then((docs) => {
@@ -245,7 +245,7 @@ export const deleteComment = async (req, res, next) => {
   //     return res.status(400).json({ error: err });
   //   }
     try{
-      await Comment.delete({ _id: idComment, User:  req.PhoToUser.id })
+      await Comment.delete({ _id: idComment, user:  req.PhoToUser.id })
       res.status(200).json({msg: 'Delete Comment Successfully!!!'});
     }
     catch(error){
@@ -273,8 +273,8 @@ export const getAllCommentPost = async (req, res, next) => {
   }
   // try{
     console.log(idPost);
-    const  comment = await Comment.findOne({ Post: idPost })
-                           .populate({ path: 'User', select: '-password' })
+    const  comment = await Comment.findOne({ post: idPost })
+                           .populate({ path: 'user', select: '-password' })
                           .populate({ path: 'liked', select: '-password' })
                           .populate('reply')
     
@@ -284,7 +284,10 @@ export const getAllCommentPost = async (req, res, next) => {
     if (!comment) {
       return res.status(404).json({ msg: "Post not found!" });
     }
-    res.status(200).json(comment);
+    res.status(200).json({
+      ...comment,
+      registration_data : dateToString(comment.createdAt) 
+      });
   // }
   // catch(err) {
   //   res.status(404).json({ msg: "Get Fail!" });

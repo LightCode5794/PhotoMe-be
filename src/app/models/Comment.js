@@ -4,12 +4,12 @@ import MongooseDelete from "mongoose-delete";
 const Schema = mongoose.Schema;
 
 const CommentSchema = new Schema({
-  User: {
+  user: {
     type:  mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
-  Post: {
+  post: {
     type:  mongoose.Schema.Types.ObjectId,
     ref: "Post",
     required: true,

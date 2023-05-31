@@ -3,7 +3,7 @@ import MongooseDelete from "mongoose-delete";
 
 
 const PostSchema = new mongoose.Schema({
-  User: {
+  user: {
     type:  mongoose.Schema.Types.ObjectId,
     ref: "User",
    

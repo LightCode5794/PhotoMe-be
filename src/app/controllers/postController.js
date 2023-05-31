@@ -18,7 +18,7 @@ export const createPost = async (req, res, next) => {
 
     const userId = req.PhoToUser.id;
     const newPost = new Post({
-      User: userId,
+      user: userId,
       description: description,
       photo: photo,
     });
@@ -47,9 +47,9 @@ export const getPostByID = async (req, res, next) => {
   console.log(idPost);
   try {
     const post = await Post.findById(idPost)
-      .populate({ path: 'User', select: '-password' })
-      .populate({ path: 'liked', select: '-password' })
-      .populate('comments')
+      .populate({ path: 'user', select: '-password' })
+     // .populate({ path: 'liked', select: '-password' })
+      //.populate('comments')
 
     if (!post) {
       return res.status(404).json({ msg: "Post not found!" });
@@ -94,7 +94,7 @@ export const getPostByID = async (req, res, next) => {
 export const getAllPost = async (req, res, next) => {
   try {
     const posts = await Post.find({})
-      .populate({ path: 'User', select: '-password' })
+      .populate({ path: 'user', select: '-password' })
      // .populate({ path: 'liked', select: '-password' })
       //.populate('comments')
 
@@ -163,7 +163,7 @@ export const updatePostByID = async (req, res, next) => {
   //     return res.status(400).json({ error: err });
   //   }
   const post = await Post.updateOne(
-    { _id: id, User: req.PhoToUser.id },
+    { _id: id, user: req.PhoToUser.id },
     {
       photo: photo,
       description: description,
