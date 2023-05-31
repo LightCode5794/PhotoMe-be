@@ -48,8 +48,8 @@ export const getPostByID = async (req, res, next) => {
   try {
     const post = await Post.findById(idPost)
       .populate({ path: 'user', select: '-password' })
-     // .populate({ path: 'liked', select: '-password' })
-      //.populate('comments')
+    // .populate({ path: 'liked', select: '-password' })
+    //.populate('comments')
 
     if (!post) {
       return res.status(404).json({ msg: "Post not found!" });
@@ -95,8 +95,8 @@ export const getAllPost = async (req, res, next) => {
   try {
     const posts = await Post.find({})
       .populate({ path: 'user', select: '-password' })
-     // .populate({ path: 'liked', select: '-password' })
-      //.populate('comments')
+    // .populate({ path: 'liked', select: '-password' })
+    //.populate('comments')
 
     if (!posts) {
       return res.status(404).json({ msg: "Post not found!" });
