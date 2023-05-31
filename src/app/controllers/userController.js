@@ -406,7 +406,7 @@ export const getPost = async (req, res, next) => {
   try {
     const posts = await User.findById(idUser, 'post')
       .populate('post')
-    res.status(200).json(posts);
+    res.status(200).json(posts.post);
   }
   catch (err) {
     res.json({ error: err });
