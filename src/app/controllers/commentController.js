@@ -10,66 +10,68 @@ dotenv.config();
 //[POST]
 export const createComment = async (req, res, next) => {
   const idPost = req.params.id;
+  console.log(idPost);
   const { comment } = req.body;
- 
+
 
   if (!comment) {
     return res.status(400).json({ msg: "Please enter comment" });
   }
 
 
-    const post = await Post.findOne({_id: idPost});
-    if(!post) {
-      return res.status(400).json({ msg: "Post not found" });
-    }
+  const post = await Post.findOne({ _id: idPost });
+  console.log(post);
+  if (!post) {
+    return res.status(400).json({ msg: "Post not found" });
+  }
 
-    try {
-      const newComment = new Comment({
-        post: idPost,
-        user:  req.PhoToUser.id,
-        comment: comment,
-      });
-      await newComment.save();
-     // return res.status(200).json(newComment);
-      post.comments.push(newComment._id);
-       await post.save();
-       return res.status(200).json(newComment);
-      
-    }
-    catch {
-      return res.status(400).json({ msg: "Create comment fail!" });
-    }
-    // Post.findById(idPost, {})
-    //   .then((post) => {
-    //     User.findById( req.PhoToUser.id, {})
-    //       .then(async (user) => {
-    //         const newComment = new Comment({
-    //           Post: idPost,
-    //           User:  req.PhoToUser.id,
-    //           comment: comment,
-    //         });
-    //         try {
-    //           newComment
-    //             .save()
-    //             .then(async (comment) => {
-    //               post.comment.push(comment._id);
-    //               await post.save();
-    //               return res.status(200).json(comment);
-    //             })
-    //             .catch((error) => {
-    //               return res.status(500).json({ msg: error });
-    //             });
-    //         } catch (error) {
-    //           return res.status(500).json({ msg: error });
-    //         }
-    //       })
-    //       .catch((error) => {
-    //         return res.status(400).json({ msg: "Người dùng không tồn tại" });
-    //       });
-    //   })
-    //   .catch((error) => {
-    //     return res.status(400).json({ msg: "Comment không tồn tại" });
-    //   });
+  try {
+    const newComment = new Comment({
+      post: idPost,
+      user: req.PhoToUser.id,
+      comment: comment,
+    });
+    await newComment.save();
+    // return res.status(200).json(newComment);
+    post.comments.push(newComment._id);
+    await post.save();
+    return res.status(200).json(newComment);
+
+  }
+  catch {
+    return res.status(400).json({ msg: "Create comment fail!" });
+  }
+  // Post.findById(idPost, {})
+  //   .then((post) => {
+  //     User.findById( req.PhoToUser.id, {})
+  //       .then(async (user) => {
+  //         const newComment = new Comment({
+  //           Post: idPost,
+  //           User:  req.PhoToUser.id,
+  //           comment: comment,
+  //         });
+  //         try {
+  //           newComment
+  //             .save()
+  //             .then(async (comment) => {
+  //               post.comment.push(comment._id);
+  //               await post.save();
+  //               return res.status(200).json(comment);
+  //             })
+  //             .catch((error) => {
+  //               return res.status(500).json({ msg: error });
+  //             });
+  //         } catch (error) {
+  //           return res.status(500).json({ msg: error });
+  //         }
+  //       })
+  //       .catch((error) => {
+  //         return res.status(400).json({ msg: "Người dùng không tồn tại" });
+  //       });
+  //   })
+  //   .catch((error) => {
+  //     return res.status(400).json({ msg: "Comment không tồn tại" });
+  //   });
 
 };
 
@@ -94,58 +96,58 @@ export const replyComment = async (req, res, next) => {
   //     return res.status(400).json({ error: err });
   //   }
 
-    try {
-      const mainComment = await Comment.findById({_id: id});
-      if(!mainComment) {
-              return res.status(400).json({ msg: "Comment not found" });
-      }
-      const newReplyComment = new Comment({
-        post: id,
-        user:  req.PhoToUser.id,
-        comment: comment,
-        parentComment: mainComment._id,
-      });
-      await newReplyComment.save();
-      mainComment.reply.push(newReplyComment._id);
-      await mainComment.save();
-    
-      res.status(200).json(newReplyComment);
+  try {
+    const mainComment = await Comment.findById({ _id: id });
+    if (!mainComment) {
+      return res.status(400).json({ msg: "Comment not found" });
+    }
+    const newReplyComment = new Comment({
+      post: id,
+      user: req.PhoToUser.id,
+      comment: comment,
+      parentComment: mainComment._id,
+    });
+    await newReplyComment.save();
+    mainComment.reply.push(newReplyComment._id);
+    await mainComment.save();
 
-    }
-    catch {
-      return res.status(400).json({ msg: "Reply fail!" });
-    }
-    // Comment.findById(id, {})
-    //   .then((mainComment) => {
-    //     User.findById( req.PhoToUser.id, {})
-    //       .then(async (user) => {
-    //         const newComment = new Comment({
-    //           Post: id,
-    //           User:  req.PhoToUser.id,
-    //           comment: comment,
-    //         });
-    //         try {
-    //           newComment
-    //             .save()
-    //             .then(async (comment) => {
-    //               mainComment.reply.push(comment._id);
-    //               await mainComment.save();
-    //               return res.status(200).json(comment);
-    //             })
-    //             .catch((error) => {
-    //               return res.status(500).json({ msg: error });
-    //             });
-    //         } catch (error) {
-    //           return res.status(500).json({ msg: error });
-    //         }
-    //       })
-    //       .catch((error) => {
-    //         res.status(400).json({ msg: "Người dùng không tồn tại" });
-    //       });
-    //   })
-    //   .catch((error) => {
-    //     res.status(400).json({ msg: "Comment không tồn tại" });
-    //   });
+    res.status(200).json(newReplyComment);
+
+  }
+  catch {
+    return res.status(400).json({ msg: "Reply fail!" });
+  }
+  // Comment.findById(id, {})
+  //   .then((mainComment) => {
+  //     User.findById( req.PhoToUser.id, {})
+  //       .then(async (user) => {
+  //         const newComment = new Comment({
+  //           Post: id,
+  //           User:  req.PhoToUser.id,
+  //           comment: comment,
+  //         });
+  //         try {
+  //           newComment
+  //             .save()
+  //             .then(async (comment) => {
+  //               mainComment.reply.push(comment._id);
+  //               await mainComment.save();
+  //               return res.status(200).json(comment);
+  //             })
+  //             .catch((error) => {
+  //               return res.status(500).json({ msg: error });
+  //             });
+  //         } catch (error) {
+  //           return res.status(500).json({ msg: error });
+  //         }
+  //       })
+  //       .catch((error) => {
+  //         res.status(400).json({ msg: "Người dùng không tồn tại" });
+  //       });
+  //   })
+  //   .catch((error) => {
+  //     res.status(400).json({ msg: "Comment không tồn tại" });
+  //   });
   // });
 };
 
@@ -154,39 +156,39 @@ export const likeComment = async (req, res, next) => {
   console.log("like comment");
   // const id = req.params.id;
   const id = req.body.id_comment;
- 
+
   console.log(req.body);
 
   if (!id) {
     return res.status(400).json({ msg: "Please enter all fields" });
   }
- 
-  
-    Comment.findById(id, {}).then((mainComment) => {
-      // User.findById( req.PhoToUser.id, {})
-      //   .then(async (user) => {
-          const index = mainComment.liked.indexOf( req.PhoToUser.id);
-          if (index > -1) {
-            mainComment.liked.splice(index, 1);
-            console.log("bỏ like comment");
-          } else {
-            mainComment.liked.push( req.PhoToUser.id);
-            console.log("like comment");
-          }
-          mainComment
-            .save()
-            .then(async (comment) => {
-              // console.log(comment.registration_data.getDay().toString().padStart(2, "0"));
-              return res.status(200).json(comment);
-            })
-            .catch((error) => {
-              res.status(400).json({ msg: "Người dùng không tồn tại" });
-            });
-        })
-        .catch((error) => {
-          res.status(400).json({ msg: "Comment không tồn tại" });
-        });
-    // });
+
+
+  Comment.findById(id, {}).then((mainComment) => {
+    // User.findById( req.PhoToUser.id, {})
+    //   .then(async (user) => {
+    const index = mainComment.liked.indexOf(req.PhoToUser.id);
+    if (index > -1) {
+      mainComment.liked.splice(index, 1);
+      console.log("bỏ like comment");
+    } else {
+      mainComment.liked.push(req.PhoToUser.id);
+      console.log("like comment");
+    }
+    mainComment
+      .save()
+      .then(async (comment) => {
+        // console.log(comment.registration_data.getDay().toString().padStart(2, "0"));
+        return res.status(200).json(comment);
+      })
+      .catch((error) => {
+        res.status(400).json({ msg: "Người dùng không tồn tại" });
+      });
+  })
+    .catch((error) => {
+      res.status(400).json({ msg: "Comment không tồn tại" });
+    });
+  // });
 };
 
 //[PUT]
@@ -208,20 +210,20 @@ export const updateComment = async (req, res, next) => {
   //   if (err) {
   //     return res.status(400).json({ error: err });
   //   }
-    const comment = await Comment.updateOne(
-      { _id: id, user:  req.PhoToUser.id },
-      { comment: req.body.comment }
-    )
-      .then((docs) => {
-        if (docs) {
-          res.status(200).json({ success: true, data: docs });
-        } else {
-          res.status(200).json({ success: false, data: docs });
-        }
-      })
-      .catch((error) => {
-        return res.status(400).json({ msg: "Update comment Fail!!!" });
-      });
+  const comment = await Comment.updateOne(
+    { _id: id, user: req.PhoToUser.id },
+    { comment: req.body.comment }
+  )
+    .then((docs) => {
+      if (docs) {
+        res.status(200).json({ success: true, data: docs });
+      } else {
+        res.status(200).json({ success: false, data: docs });
+      }
+    })
+    .catch((error) => {
+      return res.status(400).json({ msg: "Update comment Fail!!!" });
+    });
   // });
 };
 
@@ -244,24 +246,30 @@ export const deleteComment = async (req, res, next) => {
   //   if (err) {
   //     return res.status(400).json({ error: err });
   //   }
-    try{
-      await Comment.delete({ _id: idComment, user:  req.PhoToUser.id })
-      res.status(200).json({msg: 'Delete Comment Successfully!!!'});
-    }
-    catch(error){
-          return res.status(400).json({ msg: "delete comment failed!!!" });
-    }
-    // const comment = await Comment.deleteOne({ _id: id, User:  req.PhoToUser.id })
-    //   .then((docs) => {
-    //     if (docs) {
-    //       res.status(200).json({ success: true, data: docs });
-    //     } else {
-    //       res.status(200).json({ success: false, data: docs });
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     return res.status(400).json({ msg: "Dont delete comment" });
-    //   });
+  try {
+    // await Comment.deleteOne({ _id: idComment, user: req.PhoToUser.id })
+    const commentDeleted = await Comment.findOne({ _id: idComment, user: req.PhoToUser.id })
+
+    await Post.updateOne({ _id: commentDeleted.post._id }, { $pullAll: { comments: [{ _id: commentDeleted._id }] } });
+
+    await Comment.deleteOne({ _id: idComment, user: req.PhoToUser.id })
+
+    res.status(200).json({ msg: 'Delete Comment Successfully!!!' });
+  }
+  catch (error) {
+    return res.status(400).json({ msg: error.message });
+  }
+  // const comment = await Comment.deleteOne({ _id: id, User:  req.PhoToUser.id })
+  //   .then((docs) => {
+  //     if (docs) {
+  //       res.status(200).json({ success: true, data: docs });
+  //     } else {
+  //       res.status(200).json({ success: false, data: docs });
+  //     }
+  //   })
+  //   .catch((error) => {
+  //     return res.status(400).json({ msg: "Dont delete comment" });
+  //   });
   // });
 };
 
@@ -271,23 +279,23 @@ export const getAllCommentPost = async (req, res, next) => {
   if (!idPost) {
     return res.status(400).json({ msg: "Dont have id post" });
   }
-  try{
+  try {
     console.log(idPost);
-    const  comments = await Comment.find({ post: idPost })
-                           .populate({ path: 'user', select: '-password -device_token' })
+    const comments = await Comment.find({ post: idPost })
+      .populate({ path: 'user', select: '-password -device_token' })
 
-                         // .populate({ path: 'liked', select: '-password' })
-                          //.populate('reply')
-    
+    // .populate({ path: 'liked', select: '-password' })
+    //.populate('reply')
+
     if (!comments) {
       return res.status(404).json({ msg: "Post not found!" });
-    }         
+    }
     if (!comments) {
       return res.status(404).json({ msg: "Post not found!" });
     }
     res.status(200).json(comments);
   }
-  catch(err) {
+  catch (err) {
     res.status(404).json({ msg: "Get Fail!" });
   }
   // try {

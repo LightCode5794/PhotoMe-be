@@ -446,9 +446,9 @@ export const getPost = async (req, res, next) => {
                   follower: user.follower,
                   following: user.following,
                 };
-                copyItem.registration_data = dateToString(
-                  copyItem.registration_data
-                );
+                // copyItem.registration_data = dateToString(
+                //   copyItem.registration_data
+                // );
                 delete copyItem.id_User;
                 // console.log(copyItem._doc);
                 list.push(copyItem);
