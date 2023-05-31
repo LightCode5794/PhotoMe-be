@@ -420,7 +420,6 @@ export const getPost = async (req, res, next) => {
 
   User.findById(idUser, {})
     .then((mainUser) => {
-      console.log(mainUser.post);
       Post.find(
         {
           _id: {

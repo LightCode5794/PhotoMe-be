@@ -273,21 +273,19 @@ export const getAllCommentPost = async (req, res, next) => {
   }
   // try{
     console.log(idPost);
-    const  comment = await Comment.findOne({ post: idPost })
-                           .populate({ path: 'user', select: '-password' })
-                          .populate({ path: 'liked', select: '-password' })
-                          .populate('reply')
+    const  comments = await Comment.find({ post: idPost })
+                           .populate({ path: 'user', select: '-password -device_token' })
+
+                         // .populate({ path: 'liked', select: '-password' })
+                          //.populate('reply')
     
-    if (!comment) {
+    if (!comments) {
       return res.status(404).json({ msg: "Post not found!" });
     }         
-    if (!comment) {
+    if (!comments) {
       return res.status(404).json({ msg: "Post not found!" });
     }
-    res.status(200).json({
-      ...comment,
-      registration_data : dateToString(comment.createdAt) 
-      });
+    res.status(200).json(comments);
   // }
   // catch(err) {
   //   res.status(404).json({ msg: "Get Fail!" });
