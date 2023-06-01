@@ -211,7 +211,7 @@ export const getUserByID = async (req, res, next) => {
 
   const id = req.params.id;
   console.log(id);
-  User.findById(id, {})
+  User.findById(id, {delete: false})
     .then((data) => {
       console.log(data);
       res.status(200).json(data);
