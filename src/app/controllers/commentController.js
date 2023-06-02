@@ -13,11 +13,9 @@ export const createComment = async (req, res, next) => {
   console.log(idPost);
   const { comment } = req.body;
 
-
   if (!comment) {
     return res.status(400).json({ msg: "Please enter comment" });
   }
-
 
   const post = await Post.findOne({ _id: idPost });
   console.log(post);
@@ -35,10 +33,9 @@ export const createComment = async (req, res, next) => {
     // return res.status(200).json(newComment);
     post.comments.push(newComment._id);
     await post.save();
-    return res.status(200).json(newComment);
 
-  }
-  catch {
+    return res.status(200).json(newComment);
+  } catch {
     return res.status(400).json({ msg: "Create comment fail!" });
   }
   // Post.findById(idPost, {})
@@ -72,7 +69,6 @@ export const createComment = async (req, res, next) => {
   //   .catch((error) => {
   //     return res.status(400).json({ msg: "Comment không tồn tại" });
   //   });
-
 };
 
 //[POST]
@@ -112,9 +108,7 @@ export const replyComment = async (req, res, next) => {
     await mainComment.save();
 
     res.status(200).json(newReplyComment);
-
-  }
-  catch {
+  } catch {
     return res.status(400).json({ msg: "Reply fail!" });
   }
   // Comment.findById(id, {})
@@ -163,28 +157,28 @@ export const likeComment = async (req, res, next) => {
     return res.status(400).json({ msg: "Please enter all fields" });
   }
 
-
-  Comment.findById(id, {}).then((mainComment) => {
-    // User.findById( req.PhoToUser.id, {})
-    //   .then(async (user) => {
-    const index = mainComment.liked.indexOf(req.PhoToUser.id);
-    if (index > -1) {
-      mainComment.liked.splice(index, 1);
-      console.log("bỏ like comment");
-    } else {
-      mainComment.liked.push(req.PhoToUser.id);
-      console.log("like comment");
-    }
-    mainComment
-      .save()
-      .then(async (comment) => {
-        // console.log(comment.registration_data.getDay().toString().padStart(2, "0"));
-        return res.status(200).json(comment);
-      })
-      .catch((error) => {
-        res.status(400).json({ msg: "Người dùng không tồn tại" });
-      });
-  })
+  Comment.findById(id, {})
+    .then((mainComment) => {
+      // User.findById( req.PhoToUser.id, {})
+      //   .then(async (user) => {
+      const index = mainComment.liked.indexOf(req.PhoToUser.id);
+      if (index > -1) {
+        mainComment.liked.splice(index, 1);
+        console.log("bỏ like comment");
+      } else {
+        mainComment.liked.push(req.PhoToUser.id);
+        console.log("like comment");
+      }
+      mainComment
+        .save()
+        .then(async (comment) => {
+          // console.log(comment.registration_data.getDay().toString().padStart(2, "0"));
+          return res.status(200).json(comment);
+        })
+        .catch((error) => {
+          res.status(400).json({ msg: "Người dùng không tồn tại" });
+        });
+    })
     .catch((error) => {
       res.status(400).json({ msg: "Comment không tồn tại" });
     });
@@ -248,15 +242,20 @@ export const deleteComment = async (req, res, next) => {
   //   }
   try {
     // await Comment.deleteOne({ _id: idComment, user: req.PhoToUser.id })
-    const commentDeleted = await Comment.findOne({ _id: idComment, user: req.PhoToUser.id })
+    const commentDeleted = await Comment.findOne({
+      _id: idComment,
+      user: req.PhoToUser.id,
+    });
 
-    await Post.updateOne({ _id: commentDeleted.post._id }, { $pullAll: { comments: [{ _id: commentDeleted._id }] } });
+    await Post.updateOne(
+      { _id: commentDeleted.post._id },
+      { $pullAll: { comments: [{ _id: commentDeleted._id }] } }
+    );
 
-    await Comment.deleteOne({ _id: idComment, user: req.PhoToUser.id })
+    await Comment.deleteOne({ _id: idComment, user: req.PhoToUser.id });
 
-    res.status(200).json({ msg: 'Delete Comment Successfully!!!' });
-  }
-  catch (error) {
+    res.status(200).json({ msg: "Delete Comment Successfully!!!" });
+  } catch (error) {
     return res.status(400).json({ msg: error.message });
   }
   // const comment = await Comment.deleteOne({ _id: id, User:  req.PhoToUser.id })
@@ -281,8 +280,10 @@ export const getAllCommentPost = async (req, res, next) => {
   }
   try {
     console.log(idPost);
-    const comments = await Comment.find({ post: idPost })
-      .populate({ path: 'user', select: '-password -device_token' })
+    const comments = await Comment.find({ post: idPost }).populate({
+      path: "user",
+      select: "-password -device_token",
+    });
 
     // .populate({ path: 'liked', select: '-password' })
     //.populate('reply')
@@ -294,8 +295,7 @@ export const getAllCommentPost = async (req, res, next) => {
       return res.status(404).json({ msg: "Post not found!" });
     }
     res.status(200).json(comments);
-  }
-  catch (err) {
+  } catch (err) {
     res.status(404).json({ msg: "Get Fail!" });
   }
   // try {
@@ -340,9 +340,19 @@ export const getAllReplyComment = async (req, res, next) => {
     return res.status(400).json({ msg: "Dont have id post" });
   }
   try {
-    await Comment.find({ Post: id }).then((comment) => res.json(comment));
+    const comment = await Comment.findById(id);
+    const repliesId = comment.reply;
+    const replies = await Comment.find({ _id: { $in: repliesId } });
+    // comment.reply.forEach((e) => {
+    //   const reply = Comment.find(e.toString());
+    //   Comment.findById(e.toString()).then((rep) => {
+    //     console.log(rep);
+    //     replies.push(rep);
+    //   });
+    // });
+    res.json(replies);
   } catch (error) {
-    res.status(400).json({ error: "Error" });
+    res.status(400).json({ error: "NO" });
     console.log(error);
   }
 };
