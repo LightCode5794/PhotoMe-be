@@ -342,7 +342,10 @@ export const getAllReplyComment = async (req, res, next) => {
   try {
     const comment = await Comment.findById(id);
     const repliesId = comment.reply;
-    const replies = await Comment.find({ _id: { $in: repliesId } });
+    const replies = await Comment.find({ _id: { $in: repliesId } }).populate({
+      path: "user",
+      select: "-password -device_token",
+    });
     // comment.reply.forEach((e) => {
     //   const reply = Comment.find(e.toString());
     //   Comment.findById(e.toString()).then((rep) => {
