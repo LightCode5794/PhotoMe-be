@@ -284,20 +284,25 @@ export const getAllCommentPost = async (req, res, next) => {
     const comments = await Comment.find({ post: idPost })
       .populate({ path: 'user', select: '-password -device_token' })
 
-    // .populate({ path: 'liked', select: '-password' })
-    //.populate('reply')
+      // .populate({ path: 'liked', select: '-password' })
+      .populate({
+        path: 'reply',
+        // Get friends of friends - populate the 'friends' array for every friend
+        populate: { path: 'reply' }
+      })
 
-    if (!comments) {
-      return res.status(404).json({ msg: "Post not found!" });
-    }
-    if (!comments) {
-      return res.status(404).json({ msg: "Post not found!" });
-    }
-    res.status(200).json(comments);
+
+  if (!comments) {
+    return res.status(404).json({ msg: "Post not found!" });
   }
+  if (!comments) {
+    return res.status(404).json({ msg: "Post not found!" });
+  }
+  res.status(200).json(comments);
+}
   catch (err) {
-    res.status(404).json({ msg: "Get Fail!" });
-  }
+  res.status(404).json({ msg: "Get Fail!" });
+}
   // try {
   //   await Comment.find({ Post: id }).then(async (comment) => {
   //     var list = [];
