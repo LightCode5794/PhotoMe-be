@@ -45,7 +45,7 @@ export const createNotification = async (req, res, next) => {
                 OrganizationId: "2",
                 content_available: true,
                 priority: "high",
-                subtitle: "Notification from PhotoMe",
+                subtitle: text,
                 title: "PhotoMe",
               },
             };
