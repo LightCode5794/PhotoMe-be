@@ -294,11 +294,11 @@ export const getAllCommentPost = async (req, res, next) => {
     })
 
       // .populate({ path: 'liked', select: '-password' })
-      .populate({
-        path: 'reply',
+      // .populate({
+      //   path: 'reply',
         // Get reply of reply - populate the 'reply' array for every reply       
-        populate: { path: 'reply' }
-      })
+        // populate: { path: 'reply' }
+      // })
 
     if (!comments) {
       return res.status(404).json({ msg: "Post not found!" });
