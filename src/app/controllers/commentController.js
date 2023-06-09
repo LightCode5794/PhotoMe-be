@@ -105,8 +105,9 @@ export const replyComment = async (req, res, next) => {
 
     const body = {
       text: "replied your comment",
-      toUserID: post.user,
+      toUserID: postCommented.user,
       fromUserID: req.PhoToUser.id,
+      postID: mainComment["post"]._id
     };
 
     const response = await fetch("http://127.0.0.1:5000/api/notification", {
