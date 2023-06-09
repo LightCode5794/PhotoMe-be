@@ -23,6 +23,10 @@ const NotificationSchema = new Schema({
   isRead:{
     type: Boolean,
     default: false,
+  },
+  id_Post: {
+    type: String,
+    required: true
   }
 },
 { timestamps: true },);

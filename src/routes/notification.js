@@ -4,7 +4,7 @@ import {
   createNotification,
   getNotification,
 } from "../app/controllers/notificationController.js";
-
+import isAuth from "../middlewares/isAuth.js";
 const router = express.Router();
 
 dotenv.config();
