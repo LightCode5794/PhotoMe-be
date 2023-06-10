@@ -45,7 +45,8 @@ export const getPostByID = async (req, res, next) => {
     const post = await Post.findById(idPost).populate({
       path: "user",
       select: "-password",
-    });
+    })
+    .populate('comments', 'reply')
     // .populate({ path: 'liked', select: '-password' })
     //.populate('comments')
 
@@ -55,9 +56,15 @@ export const getPostByID = async (req, res, next) => {
     if (!post) {
       return res.status(404).json({ msg: "Post not found!" });
     }
-    res.status(200).json(post);
+
+    const postsObj = {
+      ...post.toObject(),
+      numComments: post.comments.length + post.comments.reduce((sum, comment) => sum + comment.reply.length, 0),
+    };
+
+    res.status(200).json(postsObj);
   } catch (err) {
-    res.status(404).json({ msg: "Get Fail!" });
+    res.status(404).json({ msg: err.message });
   }
   // Post.findById(id, {})
   //   .then(async (data) => {
