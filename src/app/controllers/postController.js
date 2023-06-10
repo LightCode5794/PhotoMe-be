@@ -92,9 +92,9 @@ export const getAllPost = async (req, res, next) => {
     const posts = await Post.find({}).populate({
       path: "user",
       select: "-password",
-    });
+    })
     // .populate({ path: 'liked', select: '-password' })
-    //.populate('comments')
+    .populate('comments', 'reply')
 
     if (!posts) {
       return res.status(404).json({ msg: "Post not found!" });
@@ -102,10 +102,14 @@ export const getAllPost = async (req, res, next) => {
     if (!posts) {
       return res.status(404).json({ msg: "Post not found!" });
     }
+    const postsObj = posts.map(post => ({
+      ...post.toObject(),
+      numComments: post.comments.length + post.comments.reduce((sum, comment) => sum + comment.reply.length, 0),
+    }));
 
-    res.status(200).json(posts);
+    res.status(200).json(postsObj);
   } catch (err) {
-    res.status(404).json({ msg: "Get Fail!" });
+    res.status(404).json({ msg: err.message });
   }
   // Post.find({})
   //   .then(async (data) => {

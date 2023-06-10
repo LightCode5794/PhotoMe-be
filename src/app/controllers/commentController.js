@@ -94,13 +94,13 @@ export const replyComment = async (req, res, next) => {
 
   try {
     const mainComment = await Comment.findById({ _id: id })
-                                .populate('post', 'comments');
-  
+      .populate('post', 'comments');
+
     if (!mainComment) {
       return res.status(400).json({ msg: "Comment not found" });
     }
-    
-    const postCommented = await Post.findById({ _id: mainComment['post']._id });
+
+    //  const postCommented = await Post.findById({ _id: mainComment['post']._id });
     const newReplyComment = new Comment({
       post: mainComment['post']._id,
       user: req.PhoToUser.id,
@@ -110,14 +110,14 @@ export const replyComment = async (req, res, next) => {
     await newReplyComment.save();
 
     mainComment.reply.push(newReplyComment._id);
-    postCommented.comments.push(newReplyComment._id);
-   
+    //postCommented.comments.push(newReplyComment._id);
+
     await mainComment.save();
-    await postCommented.save();
+    //  await postCommented.save();
 
     res.status(200).json(newReplyComment);
-  } catch(msg) {
-    return res.status(400).json({ msg: msg.message});
+  } catch (msg) {
+    return res.status(400).json({ msg: msg.message });
   }
   // Comment.findById(id, {})
   //   .then((mainComment) => {
@@ -306,9 +306,11 @@ export const getAllCommentPost = async (req, res, next) => {
     if (!comments) {
       return res.status(404).json({ msg: "Post not found!" });
     }
+  
+
     res.status(200).json(comments);
   } catch (err) {
-    res.status(404).json({ msg: "Get Fail!" });
+    res.status(404).json({ msg: err.message });
   }
   // try {
   //   await Comment.find({ Post: id }).then(async (comment) => {

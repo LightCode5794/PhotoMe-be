@@ -21,9 +21,23 @@ const PostSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+
+  numsComment: {
+    type: Number,
+  },
 },
 { timestamps: true },
 );
+
+//pre save
+
+// PostSchema.pre('save', function (next) {
+//   if (this.isNew) {
+//     const temp = this.populate('comments', 'reply');
+//     this.numsComment = temp.comments.length;
+//   }
+//   next();
+// });
 
 //add plugins
 PostSchema.plugin(MongooseDelete, { overrideMethods: 'all', deletedAt: true });
