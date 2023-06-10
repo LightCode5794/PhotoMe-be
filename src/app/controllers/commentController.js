@@ -4,6 +4,7 @@ import Post from "../models/Post.js";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { dateToString } from "../../configs/function.js";
+import fetch from "node-fetch";
 
 dotenv.config();
 
@@ -34,41 +35,26 @@ export const createComment = async (req, res, next) => {
     post.comments.push(newComment._id);
     await post.save();
 
+
+    const body = {
+      text: "commented on your post",
+      toUserID: post.user,
+      fromUserID: req.PhoToUser.id,
+      postID: idPost
+    };
+
+    const response = await fetch("http://127.0.0.1:5000/api/notification", {
+      method: "post",
+      body: JSON.stringify(body),
+      headers: {
+        "Content-Type": "application/json", 
+      },
+    });
+
     return res.status(200).json(newComment);
   } catch {
     return res.status(400).json({ msg: "Create comment fail!" });
   }
-  // Post.findById(idPost, {})
-  //   .then((post) => {
-  //     User.findById( req.PhoToUser.id, {})
-  //       .then(async (user) => {
-  //         const newComment = new Comment({
-  //           Post: idPost,
-  //           User:  req.PhoToUser.id,
-  //           comment: comment,
-  //         });
-  //         try {
-  //           newComment
-  //             .save()
-  //             .then(async (comment) => {
-  //               post.comment.push(comment._id);
-  //               await post.save();
-  //               return res.status(200).json(comment);
-  //             })
-  //             .catch((error) => {
-  //               return res.status(500).json({ msg: error });
-  //             });
-  //         } catch (error) {
-  //           return res.status(500).json({ msg: error });
-  //         }
-  //       })
-  //       .catch((error) => {
-  //         return res.status(400).json({ msg: "Người dùng không tồn tại" });
-  //       });
-  //   })
-  //   .catch((error) => {
-  //     return res.status(400).json({ msg: "Comment không tồn tại" });
-  //   });
 };
 
 //[POST]
@@ -93,16 +79,18 @@ export const replyComment = async (req, res, next) => {
   //   }
 
   try {
-    const mainComment = await Comment.findById({ _id: id })
-      .populate('post', 'comments');
+    const mainComment = await Comment.findById({ _id: id }).populate(
+      "post",
+      "comments"
+    );
 
     if (!mainComment) {
       return res.status(400).json({ msg: "Comment not found" });
     }
 
-    //  const postCommented = await Post.findById({ _id: mainComment['post']._id });
+    const postCommented = await Post.findById({ _id: mainComment["post"]._id });
     const newReplyComment = new Comment({
-      post: mainComment['post']._id,
+      post: mainComment["post"]._id,
       user: req.PhoToUser.id,
       comment: comment,
       parentComment: mainComment._id,
@@ -110,10 +98,25 @@ export const replyComment = async (req, res, next) => {
     await newReplyComment.save();
 
     mainComment.reply.push(newReplyComment._id);
-    //postCommented.comments.push(newReplyComment._id);
+    postCommented.comments.push(newReplyComment._id);
 
     await mainComment.save();
     //  await postCommented.save();
+
+    const body = {
+      text: "replied your comment",
+      toUserID: postCommented.user,
+      fromUserID: req.PhoToUser.id,
+      postID: mainComment["post"]._id
+    };
+
+    const response = await fetch("http://127.0.0.1:5000/api/notification", {
+      method: "post",
+      body: JSON.stringify(body),
+      headers: {
+        "Content-Type": "application/json", 
+      },
+    });
 
     res.status(200).json(newReplyComment);
   } catch (msg) {
@@ -291,14 +294,14 @@ export const getAllCommentPost = async (req, res, next) => {
     const comments = await Comment.find({ post: idPost }).populate({
       path: "user",
       select: "-password -device_token",
-    })
+    });
 
-      // .populate({ path: 'liked', select: '-password' })
-      .populate({
-        path: 'reply',
-        // Get reply of reply - populate the 'reply' array for every reply       
-        populate: { path: 'reply' }
-      })
+    // .populate({ path: 'liked', select: '-password' })
+    // .populate({
+    //   path: 'reply',
+    // Get reply of reply - populate the 'reply' array for every reply
+    // populate: { path: 'reply' }
+    // })
 
     if (!comments) {
       return res.status(404).json({ msg: "Post not found!" });

@@ -26,7 +26,7 @@ export const login = async (req, res, next) => {
       jwt.sign(
         { id: user.id },
         process.env.JWT_SECRET,
-        { expiresIn: '365d' },
+        { expiresIn: "365d" },
         (err, token) => {
           if (err) throw err;
           res.status(200).json({
@@ -52,7 +52,7 @@ export const login = async (req, res, next) => {
 
 //[POST]
 export const signup = async (req, res, next) => {
-  console.log(req.body)
+  console.log(req.body);
   const { name, email, password, gender, phoneNumber, birthday, job } =
     req.body;
 
@@ -60,7 +60,6 @@ export const signup = async (req, res, next) => {
     return res.status(400).json({ msg: "Please enter all fields" });
   }
   // console.log(req.body)
-
 
   User.findOne({ email }).then((user) => {
     if (user) return res.status(400).json({ msg: "User Exists" });
@@ -86,7 +85,7 @@ export const signup = async (req, res, next) => {
             jwt.sign(
               { id: user.id },
               process.env.JWT_SECRET,
-              { expiresIn: '24h' },
+              { expiresIn: "24h" },
               (err, token) => {
                 if (err) throw { err };
                 return res.status(200).json({
@@ -119,15 +118,13 @@ export const signup = async (req, res, next) => {
 
 //[POST]
 export const updatePassword = async (req, res, next) => {
-
   const password = req.body.password;
   if (!password) {
     return res.status(400).json({ msg: "Dont have new password" });
   }
   bcryptjs.genSalt(10, (err, salt) => {
     bcryptjs.hash(password, salt, async (err, hash) => {
-      if (err)
-        return res.status(400).json({ msg: "Error hashing a password" });
+      if (err) return res.status(400).json({ msg: "Error hashing a password" });
       const user = await User.updateOne(
         { _id: req.PhoToUser.id },
         {
@@ -211,7 +208,7 @@ export const getUserByID = async (req, res, next) => {
 
   const id = req.params.id;
   console.log(id);
-  User.findById(id, {delete: false})
+  User.findById(id, { delete: false })
     .then((data) => {
       console.log(data);
       res.status(200).json(data);
@@ -278,24 +275,22 @@ export const deleteUserByID = async (req, res, next) => {
         }
       })
       .catch((error) => {
-        return res
-          .status(400)
-          .json({ msg: "Dont delete user", error: error });
+        return res.status(400).json({ msg: "Dont delete user", error: error });
       });
   } else {
     return res.status(400).json({ error: "token không trùng khớp" });
   }
-
 };
 
 //[GET]
 export const searchUserByName = async (req, res, next) => {
   var nameSearch = req.query.name;
-  console.log(nameSearch);
+  // console.log("haiz");
   try {
-    await User.find({ name: new RegExp(nameSearch, "i") }).then((user) =>
-      res.status(200).json(user)
-    );
+    await User.find({ name: new RegExp(nameSearch, "i") }).then((user) => {
+      console.log(user);
+      res.status(200).json(user);
+    });
   } catch (error) {
     res.status(400).json({ error: error });
     console.log(error);
@@ -379,11 +374,21 @@ export const getNotifications = async (req, res, next) => {
           var list = [];
           // console.log(data);
           for (var item of data) {
-            await User.findById(item.id_ToUser, {})
-              .then((user) => {
-                var copyItem = item.toObject();
-                copyItem.to_user = user;
-                list.push(copyItem);
+            await User.findById(item.id_FromUser, {})
+              .then(async (user) => {
+                await Post.findById(item.id_Post, {})
+                  .then(async (post) => {
+                    await User.findById(item.id_ToUser, {}).then(
+                      (postUser) => {
+                        var copyItem = item.toObject();
+                        copyItem.to_user = user;
+                        copyItem.post = post;
+                        copyItem.post.user = postUser;
+                        list.push(copyItem);
+                      }
+                    );
+                  })
+                  .catch((err) => console.log(err));
               })
               .catch((err) => console.log(err));
           }
@@ -404,18 +409,18 @@ export const getPost = async (req, res, next) => {
   const idUser = req.params.id;
   console.log("get post");
   try {
-    const user = await User.findById(idUser, 'post')
-      .populate('post', null, { deleted: false });
+    const user = await User.findById(idUser, "post").populate("post", null, {
+      deleted: false,
+    });
 
-    const userInfo = await User.findById(idUser).select('-post -password');
+    const userInfo = await User.findById(idUser).select("-post -password");
 
     const formatPostsArr = user.post.map((post) => ({
       ...post.toObject(),
-      user: userInfo.toObject()
-    }))
+      user: userInfo.toObject(),
+    }));
     res.json(formatPostsArr);
-  }
-  catch (err) {
+  } catch (err) {
     res.json({ error: err.message });
   }
 

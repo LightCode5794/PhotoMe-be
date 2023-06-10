@@ -3,6 +3,7 @@ import Post from "../models/Post.js";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { dateToString } from "../../configs/function.js";
+import fetch from "node-fetch";
 
 dotenv.config();
 
@@ -217,7 +218,24 @@ export const likePost = async (req, res, next) => {
       } else {
         post.liked.push(req.PhoToUser.id);
       }
-      post.save().then((newPost) => {
+      post.save()
+      .then(async (newPost) => {
+      
+        const body = {
+          text: "like your post",
+          toUserID: post.user,
+          fromUserID: req.PhoToUser.id,
+          postID: id
+        };
+        console.log(body)
+    
+        const response = await fetch("http://127.0.0.1:5000/api/notification", {
+          method: "post",
+          body: JSON.stringify(body),
+          headers: {
+            "Content-Type": "application/json", 
+          },
+        });
         return res.status(200).json(newPost);
       });
     })
