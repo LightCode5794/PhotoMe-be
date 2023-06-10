@@ -88,7 +88,7 @@ export const replyComment = async (req, res, next) => {
       return res.status(400).json({ msg: "Comment not found" });
     }
 
-    const postCommented = await Post.findById({ _id: mainComment["post"]._id });
+   // const postCommented = await Post.findById({ _id: mainComment["post"]._id });
     const newReplyComment = new Comment({
       post: mainComment["post"]._id,
       user: req.PhoToUser.id,
@@ -98,7 +98,7 @@ export const replyComment = async (req, res, next) => {
     await newReplyComment.save();
 
     mainComment.reply.push(newReplyComment._id);
-    postCommented.comments.push(newReplyComment._id);
+   // postCommented.comments.push(newReplyComment._id);
 
     await mainComment.save();
     //  await postCommented.save();
