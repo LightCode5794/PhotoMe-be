@@ -44,7 +44,7 @@ export const getPostByID = async (req, res, next) => {
   try {
     const post = await Post.findById(idPost).populate({
       path: "user",
-      select: "-password",
+      select: "-password -notifications",
     })
     .populate('comments', 'reply')
     // .populate({ path: 'liked', select: '-password' })
@@ -99,7 +99,7 @@ export const getAllPost = async (req, res, next) => {
   try {
     const posts = await Post.find({}).populate({
       path: "user",
-      select: "-password",
+      select: "-password -notifications",
     })
     // .populate({ path: 'liked', select: '-password' })
     .populate('comments', 'reply')

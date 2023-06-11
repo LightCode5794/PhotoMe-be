@@ -413,7 +413,7 @@ export const getPost = async (req, res, next) => {
       deleted: false,
     });
 
-    const userInfo = await User.findById(idUser).select("-post -password");
+    const userInfo = await User.findById(idUser).select("-post -password  -notifications");
 
     const formatPostsArr = user.post.map((post) => ({
       ...post.toObject(),

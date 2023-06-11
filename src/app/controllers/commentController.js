@@ -291,9 +291,9 @@ export const getAllCommentPost = async (req, res, next) => {
   }
   try {
     console.log(idPost);
-    const comments = await Comment.find({ post: idPost }).populate({
+    const comments = await Comment.find({ post: idPost, parentComment: null }).populate({
       path: "user",
-      select: "-password -device_token",
+      select: "-password -device_token -notifications",
     });
 
     // .populate({ path: 'liked', select: '-password' })
@@ -350,7 +350,7 @@ export const getAllCommentPost = async (req, res, next) => {
   // }
 };
 
-//[GET] //Todo chưa code @@
+//[GET] 
 export const getAllReplyComment = async (req, res, next) => {
   const id = req.params.id;
   if (!id) {
@@ -361,7 +361,7 @@ export const getAllReplyComment = async (req, res, next) => {
     const repliesId = comment.reply;
     const replies = await Comment.find({ _id: { $in: repliesId } }).populate({
       path: "user",
-      select: "-password -device_token",
+      select: "-password -device_token -notifications",
     });
     // comment.reply.forEach((e) => {
     //   const reply = Comment.find(e.toString());
