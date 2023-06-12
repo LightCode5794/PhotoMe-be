@@ -31,18 +31,7 @@ export const login = async (req, res, next) => {
           if (err) throw err;
           res.status(200).json({
             token,
-            user: {
-              id: user.id,
-              name: user.name,
-              email: user.email,
-              password: user.password,
-              gender: user.gender,
-              phoneNumber: user.phoneNumber,
-              birthday: user.birthday,
-              avatar: user.avatar,
-              description: user.description,
-              job: user.job,
-            },
+            user: user,
           });
         }
       );
@@ -90,18 +79,7 @@ export const signup = async (req, res, next) => {
                 if (err) throw { err };
                 return res.status(200).json({
                   token,
-                  user: {
-                    id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    gender: user.gender,
-                    password: user.password,
-                    phoneNumber: user.phoneNumber,
-                    birthday: user.birthday,
-                    avatar: user.avatar,
-                    description: user.description,
-                    job: user.job,
-                  },
+                  user: user,
                 });
               }
             );
@@ -378,15 +356,13 @@ export const getNotifications = async (req, res, next) => {
               .then(async (user) => {
                 await Post.findById(item.id_Post, {})
                   .then(async (post) => {
-                    await User.findById(item.id_ToUser, {}).then(
-                      (postUser) => {
-                        var copyItem = item.toObject();
-                        copyItem.to_user = user;
-                        copyItem.post = post;
-                        copyItem.post.user = postUser;
-                        list.push(copyItem);
-                      }
-                    );
+                    await User.findById(item.id_ToUser, {}).then((postUser) => {
+                      var copyItem = item.toObject();
+                      copyItem.to_user = user;
+                      copyItem.post = post;
+                      copyItem.post.user = postUser;
+                      list.push(copyItem);
+                    });
                   })
                   .catch((err) => console.log(err));
               })
@@ -412,11 +388,15 @@ export const getPost = async (req, res, next) => {
     const user = await User.findById(idUser, "post").populate("post", null, {
       deleted: false,
     });
+    console.log(user);
 
-    const userInfo = await User.findById(idUser).select("-post -password  -notifications");
+    const userInfo = await User.findById(idUser).select(
+      "-post -password -notifications"
+    );
 
     const formatPostsArr = user.post.map((post) => ({
       ...post.toObject(),
+      numComments: 0, 
       user: userInfo.toObject(),
     }));
     res.json(formatPostsArr);
