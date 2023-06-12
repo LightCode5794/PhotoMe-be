@@ -409,15 +409,19 @@ export const getPost = async (req, res, next) => {
   const idUser = req.params.id;
   console.log("get post");
   try {
-    const user = await User.findById(idUser, "post").populate("post", null, {
-      deleted: false,
-    });
+    const user = await User.findOne({_id: idUser}, "post").populate({ path: 'post', populate: { path: 'comments', select: 'reply' } })
+    // .populate({
+    //     path: 'reply',
+    //  // Get reply of reply - populate the 'reply' array for every reply
+    //   populate: { path: 'reply' }
+    //   })
 
     const userInfo = await User.findById(idUser).select("-post -password  -notifications");
 
-    const formatPostsArr = user.post.map((post) => ({
+    const formatPostsArr = user['post'].map((post) => ({
       ...post.toObject(),
-      user: userInfo.toObject(),
+        user: userInfo.toObject(),
+      numComments: post.comments.length + post.comments.reduce((sum, comment) => sum + comment.reply.length, 0),
     }));
     res.json(formatPostsArr);
   } catch (err) {
