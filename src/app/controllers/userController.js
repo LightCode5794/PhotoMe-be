@@ -111,7 +111,7 @@ export const updatePassword = async (req, res, next) => {
       )
         .then((docs) => {
           if (docs) {
-            res.status(200).json({ success: true, data: docs });
+            res.status(200).json({ data: hash });
           } else {
             res.status(200).json({ success: false, data: docs });
           }
