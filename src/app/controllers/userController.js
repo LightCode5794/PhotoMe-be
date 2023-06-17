@@ -385,7 +385,10 @@ export const getPost = async (req, res, next) => {
   const idUser = req.params.id;
   console.log("get post");
   try {
-    const user = await User.findOne({_id: idUser}, "post").populate({ path: 'post', populate: { path: 'comments', select: 'reply' } })
+    const user = await User.findOne({ _id: idUser }, "post").populate({
+      path: "post",
+      populate: { path: "comments", select: "reply" },
+    });
     // .populate({
     //     path: 'reply',
     //  // Get reply of reply - populate the 'reply' array for every reply
@@ -396,10 +399,12 @@ export const getPost = async (req, res, next) => {
       "-post -password -notifications"
     );
 
-    const formatPostsArr = user['post'].map((post) => ({
+    const formatPostsArr = user["post"].map((post) => ({
       ...post.toObject(),
-        user: userInfo.toObject(),
-      numComments: post.comments.length + post.comments.reduce((sum, comment) => sum + comment.reply.length, 0),
+      user: userInfo.toObject(),
+      numComments:
+        post.comments.length +
+        post.comments.reduce((sum, comment) => sum + comment.reply.length, 0),
     }));
     res.json(formatPostsArr);
   } catch (err) {
@@ -497,4 +502,25 @@ export const followUser = async (req, res, next) => {
       console.log(error);
       res.status(400).json({ msg: "Người dùng không tồn tại 2" });
     });
+};
+
+export const deletelFollower = async (req, res, next) => {
+  const id = req.params.id;
+  try {
+    await Promise.all([
+      User.findById(req.PhoToUser.id, {}).then(async (mainUser) => {
+        var index = mainUser.follower.indexOf(id);
+        mainUser.follower.splice(index, 1);
+        await mainUser.save();
+      }),
+      User.findById(id, {}).then(async (mainUser) => {
+        var index = mainUser.following.indexOf(req.PhoToUser.id);
+        mainUser.following.splice(index, 1);
+        await mainUser.save();
+      }),
+    ])
+    res.status(200).json({ msg: "Thành công" });
+  } catch (error) {
+    res.status(400).json({ msg: error });
+  }
 };

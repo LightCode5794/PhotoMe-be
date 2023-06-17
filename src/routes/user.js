@@ -17,7 +17,8 @@ import {
   getPost,
   updateDeviceToken,
   getDeviceTokenByID,
-  getNotifications
+  getNotifications,
+  deletelFollower
 } from "../app/controllers/userController.js";
 const router = express.Router();
 
@@ -37,5 +38,6 @@ router.get("/:id/notification", getNotifications);
 router.put("/:id", isAuth, updateUserByID);
 router.put("/:id/deviceToken", isAuth, updateDeviceToken);
 router.delete("/:id", isAuth, deleteUserByID);
+router.delete("/follow/:id", isAuth, deletelFollower);
 
 export default router;
