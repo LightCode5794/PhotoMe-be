@@ -15,7 +15,6 @@ export const createNotification = async (req, res, next) => {
   //     ? null
   //     : req.headers.authorization.split(" ")[1];
   // console.log(req.body);
-
   // if (!token) {
   //   return res.status(400).json({ msg: "Dont find token" });
   // }
@@ -23,7 +22,6 @@ export const createNotification = async (req, res, next) => {
   //   if (err) {
   //     return res.status(400).json({ error: err });
   //   }
-
   // });
   // const fromUserID = req.PhoToUser.id;
   User.findById(toUserID, {}).then((user) => {
@@ -113,4 +111,18 @@ export const getNotification = async (req, res, next) => {
       })
       .catch((err) => console.log(err));
   });
+};
+
+export const readNotification = async (req, res, next) => {
+  const id = req.params.id;
+  console.log(id);
+  try {
+    await Notification.updateOne(
+      { _id: id },
+      { $set: { isRead: true } },
+    )
+    return res.status(200).json(true);
+  } catch {
+    return res.status(400).json({ msg: "Create comment fail!" });
+  }
 };
