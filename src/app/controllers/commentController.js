@@ -70,13 +70,6 @@ export const replyComment = async (req, res, next) => {
   if (!comment) {
     return res.status(400).json({ msg: "Please enter all fields" });
   }
-  // if (!token) {
-  //   return res.status(400).json({ msg: "Dont find token" });
-  // }
-  // jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
-  //   if (err) {
-  //     return res.status(400).json({ error: err });
-  //   }
 
   try {
     const mainComment = await Comment.findById({ _id: id }).populate(
